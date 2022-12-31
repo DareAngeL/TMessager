@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">TMessager</string>
+    <string name="username_txt">Username</string>
+    <string name="enter_btn_txt">Enter</string>
+    <string name="rene_user_txt">Babe Rene</string>
+    <string name="eziel_user_txt">Babe Eziel</string>
+    <string name="name_of_chat_mate">Babe</string>
+    <string name="statusOnlineTxt"><u>Online</u></string>
+    <string name="statusOfflineTxt"><u>Offline</u></string>
+    <string name="write_msg_txt">Write a message…</string>
+    <string name="sent_txt">Sent</string>
+    <string name="sending_txt">Sending…</string>
+    <string name="not_send_txt">Unable to send</string>
+    <string name="load_more_txt">Pull to load more messages</string>
+    <string name="no_more_msg_txt">No more messages to load</string>
+    <string name="new_msgs_txt">New Messages</string>
+    <string name="no_msgs_txt">No messages yet</string>
+</resources>

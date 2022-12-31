@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingEnd="80dp"
+    android:paddingTop="10dp"
+    tools:ignore="RtlSymmetry">
+
+    <TextView
+        android:id="@+id/babeTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="60dp"
+        android:fontFamily="@font/proximanova_regular"
+        android:text="Babe Rene"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="14sp"
+        tools:ignore="HardcodedText" />
+
+    <FrameLayout
+        android:id="@+id/textRoot"
+        android:background="@drawable/bg_rounded_corners"
+        android:backgroundTint="@color/pink"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/img"
+        android:layout_below="@id/babeTxt"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/proximanova_regular"
+            android:padding="10dp"
+            android:text="dsadwasdassdsadasdsadddsa"
+            android:textColor="#B16F7A"
+            android:textSize="16sp" />
+
+    </FrameLayout>
+
+    <io.github.florent37.shapeofview.shapes.CircleView
+        android:id="@+id/img"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_centerVertical="true"
+        android:layout_margin="10dp">
+
+        <ImageView
+            android:src="@drawable/babyy2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@null" />
+
+    </io.github.florent37.shapeofview.shapes.CircleView>
+
+</RelativeLayout>

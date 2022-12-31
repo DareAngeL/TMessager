@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.dareangel.tmessager.ui.view.layouts.BubbleChatView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <io.github.florent37.shapeofview.shapes.RoundRectView
+        android:id="@+id/chatRoot"
+        android:layout_width="match_parent"
+        android:layout_height="600dp"
+        android:layout_gravity="bottom"
+        app:shape_roundRect_bottomLeftRadius="30dp"
+        app:shape_roundRect_bottomRightRadius="30dp"
+        app:shape_roundRect_topLeftRadius="30dp"
+        app:shape_roundRect_topRightRadius="30dp">
+
+         <RelativeLayout
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:orientation="vertical">
+
+             <LinearLayout
+                 android:background="@color/white"
+                 android:alpha="0.8"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"/>
+
+             <FrameLayout
+                 android:id="@+id/onLoadMoreRoot"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content">
+
+                 <ImageView
+                     android:id="@+id/loadmore"
+                     android:layout_width="30dp"
+                     android:layout_height="30dp"
+                     android:layout_gravity="center"
+                     android:scaleType="centerCrop"
+                     android:translationY="0dp"
+                     android:src="@drawable/ic_resend"
+                     android:tint="@color/pinkDark"
+                     android:contentDescription="@null"
+                     tools:ignore="UseAppTint" />
+
+             </FrameLayout>
+
+             <LinearLayout
+                 android:id="@+id/top"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:background="@color/pink"
+                 android:orientation="horizontal">
+
+                 <ImageView
+                     android:id="@+id/connection_indicator"
+                     android:layout_width="10dp"
+                     android:layout_height="10dp"
+                     android:layout_marginStart="25dp"
+                     android:layout_marginTop="14dp"
+                     android:contentDescription="@null"
+                     android:src="@drawable/status_offline_ind"
+                     tools:ignore="ImageContrastCheck" />
+
+                 <com.google.android.material.textview.MaterialTextView
+                     android:id="@+id/chatMate"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_marginStart="10dp"
+                     android:layout_marginTop="10dp"
+                     android:layout_marginBottom="10dp"
+                     android:fontFamily="@font/proximanova_regular"
+                     android:text="@string/name_of_chat_mate"
+                     android:textColor="#455A64"
+                     android:textSize="14sp" />
+
+             </LinearLayout>
+
+             <com.dareangel.tmessager.ui.view.messagesdisplayer.MessagesRecyclerview2
+                 android:id="@+id/msgRecyclerview"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:layout_below="@id/top"
+                 android:layout_above="@id/chatEditTxtRoot"/>
+
+             <LinearLayout
+                 android:id="@+id/chatEditTxtRoot"
+                 android:background="@drawable/bg_rounded_corners"
+                 android:backgroundTint="@color/pink"
+                 android:orientation="horizontal"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_marginBottom="10dp"
+                 android:layout_marginStart="10dp"
+                 android:layout_marginEnd="10dp"
+                 android:layout_alignParentBottom="true">
+
+                 <EditText
+                     android:id="@+id/sendEdittxt"
+                     android:layout_width="0dp"
+                     android:layout_height="45dp"
+                     android:layout_weight="1"
+                     android:autofillHints="@null"
+                     android:background="@null"
+                     android:inputType="textAutoComplete"
+                     android:padding="8dp"
+                     android:textColor="#AC6A76"
+                     android:textCursorDrawable="@null"
+                     tools:ignore="LabelFor,SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                 <io.github.florent37.shapeofview.shapes.CircleView
+                     android:id="@+id/sendBtn"
+                     android:layout_gravity="center"
+                     android:layout_marginEnd="5dp"
+                     android:layout_width="35dp"
+                     android:layout_height="40dp">
+
+                     <LinearLayout
+                         android:background="@color/pinkDark"
+                         android:layout_width="match_parent"
+                         android:layout_height="match_parent">
+
+                         <ImageView
+                             android:layout_margin="8dp"
+                             android:src="@drawable/ic_send_filled"
+                             android:layout_width="match_parent"
+                             android:layout_height="match_parent"
+                             android:tint="@color/white"
+                             tools:ignore="UseAppTint"
+                             android:contentDescription="@null" />
+
+
+                     </LinearLayout>
+
+                 </io.github.florent37.shapeofview.shapes.CircleView>
+
+             </LinearLayout>
+
+         </RelativeLayout>
+
+    </io.github.florent37.shapeofview.shapes.RoundRectView>
+
+</com.dareangel.tmessager.ui.view.layouts.BubbleChatView>

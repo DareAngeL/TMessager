@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/drawable/bg_her_him_recycler_fragment.xml" value="0.117" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/drawable/bg_rounded_corners.xml" value="0.1035" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/drawable/bg_toolbar.xml" value="0.117" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/drawable/bg_you_recycler_fragment.xml" value="0.117" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/drawable/ic_send.xml" value="0.117" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/drawable/ic_send_filled.xml" value="0.1105" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/drawable/status_offline_ind.xml" value="0.117" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/drawable/status_online_ind.xml" value="0.117" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/layout-v28/fragment_signin.xml" value="0.19293478260869565" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/layout/activity_main.xml" value="0.17074275362318841" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/layout/dialog_for_msgs.xml" value="0.2234375" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/layout/fragment_chatroom.xml" value="0.19293478260869565" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/layout/fragment_lobby.xml" value="0.19293478260869565" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/layout/fragment_signin.xml" value="0.19293478260869565" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/layout/load_more_layout.xml" value="0.20833333333333334" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/layout/recycler_chatmate_fragment.xml" value="0.19293478260869565" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/layout/recycler_her_him_fragment.xml" value="0.19293478260869565" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/layout/recycler_loadmore_txt_fragment.xml" value="0.209375" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/layout/recycler_user_fragment.xml" value="0.209375" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/layout/recycler_you_fragment.xml" value="0.18" />
+        <entry key="..\:/Users/maste/OneDrive/Documents/AndroidStudio/TMessager/app/src/main/res/layout/you_recycler_fragment.xml" value="0.19293478260869565" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>

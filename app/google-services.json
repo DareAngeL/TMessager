@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "189200180962",
+    "project_id": "tmessager-5f97c",
+    "storage_bucket": "tmessager-5f97c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:189200180962:android:8e8cb9188ce36aa66160bb",
+        "android_client_info": {
+          "package_name": "com.dareangel.tmessager"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "189200180962-vckvmh3qemtdjo5fr2bqls4mrcst7u18.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRNetpfUrJB4k6oU7DqIhmTNEODfPfkFs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "189200180962-vckvmh3qemtdjo5fr2bqls4mrcst7u18.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
