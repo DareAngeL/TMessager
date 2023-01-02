@@ -58,6 +58,9 @@ class BubbleChatAnimation(
         y?.cancel()
     }
 
+    /**
+     * Starts the animation
+     */
     fun start(onAnimationEnd: () -> Unit = {}) {
         val param = winParam!!
         x = ValueAnimator.ofFloat(param.x.toFloat(), toX).apply {

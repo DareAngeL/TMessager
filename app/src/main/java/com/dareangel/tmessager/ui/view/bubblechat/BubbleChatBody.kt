@@ -14,7 +14,6 @@ import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.core.view.updateLayoutParams
 import com.dareangel.tmessager.R
-import com.dareangel.tmessager.data.database.SocketService
 import com.dareangel.tmessager.data.model.Message
 import com.dareangel.tmessager.data.model.interfaces.BubbleChat
 import com.dareangel.tmessager.data.model.interfaces.IPullToLoadMoreListener
@@ -208,9 +207,7 @@ class BubbleChatBody(
             mChatRootView, "translationY", 0f, 500
         ).addListener(object: AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: android.animation.Animator) {
-                // we will get any unseen messages from the other peer in the client every open of the bubble chat
-                // so we can notify the other peer that we already saw his/her messages
-                mDataManager.socket?.sendToSocketService(SocketService.GET_UNSEEN_MSGS_JSON)
+                seenMessage()
             }
         })
     }
@@ -247,7 +244,7 @@ class BubbleChatBody(
         mChatHandler.addMessage(ChatHandler.USER, it["msg"] as String, it["status"] as String, addToDB)
     }
 
-    override fun onConnect() {
+    override fun onConnect(isFirstInit: Boolean) {
         mChatHandler.initialize {
             // on message fetch
             mCoroutineScope.launch(Dispatchers.Main) {

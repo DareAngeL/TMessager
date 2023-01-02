@@ -32,6 +32,9 @@ class DataManager(private val invoker: String) {
 
     // # region end
 
+    /**
+     * Initialize the socket
+     */
     fun initSocket(context: Context, listener: IServerListener) {
         mSocket = TSocket(context, listener, invoker)
     }
@@ -42,11 +45,6 @@ class DataManager(private val invoker: String) {
         private val invoker: String
     ) {
         private val isSocketServiceRunningOnStart = Utility.isMyServiceRunning(mContext, SocketService::class.java)
-
-        private var mUnseenMsgMap = HashMap<String, Any>()
-        var unseenMsgsMap: HashMap<String, Any>
-            get() = mUnseenMsgMap
-            set(value) {mUnseenMsgMap=value}
 
         private var mSocketService: Messenger? = null
         private var mIsConnected = false
@@ -62,28 +60,20 @@ class DataManager(private val invoker: String) {
         private val mCallHandler = object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
                 when (msg.what) {
+                    // called when the client is connected to the server
                     SocketService.CONNECTED_CODE -> {
-                        mSocketListener.onConnect()
+                        mSocketListener.onConnect(true)
                     }
+                    // called when the client connection is error
                     SocketService.CONN_ERROR_CODE -> {
                         connected = false
                         mSocketListener.onConnectError()
                     }
-                    SocketService.GET_UNSEEN_MSGS_JSON -> {
-                        val data = msg.data.getString("data")
-                        if (data!!.isEmpty())
-                            return
-
-                        mUnseenMsgMap = Gson().fromJson(
-                            data,
-                            object: TypeToken<HashMap<String, Any>>() {}.type
-                        )
-
-                        mSocketListener.seenMessage()
-                    }
+                    // called to close the application
                     SocketService.CLOSE_TMESSAGER -> {
                         mSocketListener.closeApplication()
                     }
+                    // called to know if we are already connected to the server or not
                     SocketService.IS_CONNECTED -> {
                         val _connected = msg.data.getString("data").toBoolean()
                         if (!_connected) {
@@ -95,14 +85,14 @@ class DataManager(private val invoker: String) {
                             connected = true
                             // directly call the onConnect() if the socket service is already running
                             // we don't need to connect to the server cuz we are already connected
-                            mSocketListener.onConnect()
-                            sendToSocketService(SocketService.GET_UNSEEN_MSGS_JSON)
+                            mSocketListener.onConnect(false)
 
                             // we need to set from parameter to empty so we can
                             // get a response back from the other peer if online
                             pingChatMate("")
                         }
                     }
+                    // called to know if the client already connected to the chat room
                     SocketService.ROOM_ENTERED_CODE -> {
                         val it = Gson().fromJson(
                             msg.data.getString("data"),
@@ -110,6 +100,7 @@ class DataManager(private val invoker: String) {
                         )
                         mSocketListener.onEnteredRoom(it)
                     }
+                    // called when the other peer disconnects to the server
                     SocketService.OFFLINE_CODE -> {
                         val it = Gson().fromJson(
                             msg.data.getString("data"),
@@ -118,6 +109,7 @@ class DataManager(private val invoker: String) {
 
                         mSocketListener.onDisconnect(it)
                     }
+                    // called when the other peer joined the chat room
                     SocketService.CHATMATE_JOINED_CODE -> {
                         val it = Gson().fromJson(
                             msg.data.getString("data"),
@@ -126,6 +118,7 @@ class DataManager(private val invoker: String) {
 
                         mSocketListener.onUserJoined(it)
                     }
+                    // called when there's new message
                     SocketService.NEW_MSG_CODE -> {
                         val it = Gson().fromJson(
                             msg.data.getString("data"),
@@ -134,6 +127,7 @@ class DataManager(private val invoker: String) {
 
                         mSocketListener.onNewMessage(it)
                     }
+                    // called when the client want to send a message
                     SocketService.SEND_MSG_CODE -> {
                         val map = Gson().fromJson(
                             msg.data.getString("data"),
@@ -142,6 +136,7 @@ class DataManager(private val invoker: String) {
 
                         mSocketListener.sendMessage(map)
                     }
+                    // called when the message was already sent
                     SocketService.SENT_CODE -> {
                         val it = Gson().fromJson(
                             msg.data.getString("data"),
@@ -150,6 +145,7 @@ class DataManager(private val invoker: String) {
 
                         mSocketListener.onMessageSent(it)
                     }
+                    // called whhen the message from the client was received
                     SocketService.RECEIVE_CODE -> {
                         val it = Gson().fromJson(
                             msg.data.getString("data"),
@@ -168,23 +164,14 @@ class DataManager(private val invoker: String) {
         private val mSocketServiceConn = object: ServiceConnection {
             override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
                 mSocketService = Messenger(service)
+                sendToSocketService(SocketService.REGISTER_CLIENT_CODE)
 
                 // we don't want to close the bubble chat if the invoker itself is the bubble chat
                 if (invoker.contains("MainActivity")) {
-                    //always close the bubble chat on bind
                     closeBubbleChat()
                 }
 
-                var msg: Message = Message.obtain(
-                    null,
-                    SocketService.REGISTER_CLIENT_CODE
-                )
-
-                msg.replyTo = mMessenger
-                mSocketService?.send(msg)
-                // check if we are already connected to the server
-                msg = Message.obtain(null, SocketService.IS_CONNECTED)
-                mSocketService?.send(msg)
+                sendToSocketService(SocketService.IS_CONNECTED)
             }
 
             override fun onServiceDisconnected(name: ComponentName?) {
@@ -214,6 +201,9 @@ class DataManager(private val invoker: String) {
             }
         }
 
+        /**
+         * Sends an action to the socket service
+         */
         fun sendToSocketService(code: Int, it: String? = null) {
             val msg = Message.obtain(null, code)
             msg.replyTo = mMessenger
@@ -232,9 +222,10 @@ class DataManager(private val invoker: String) {
         /**
          * Sends message to the other peer
          * @param from who is the invoker - does the invoker is from the SERVICE? or UI ?
-         * @param msg The message to be sent
+         * @param _msg The message to be sent
          * @param position The position of the message on the recyclerview.
          * @param status the status of the message
+         * @param type the type of the message
          */
         fun sendMessage(
             from: Int,
@@ -256,40 +247,64 @@ class DataManager(private val invoker: String) {
         }
 
         /**
-         * Ping to the chat mate that client is also online
+         * Ping the chat mate that the client is also online
          */
         fun pingChatMate(from: String = ChatHandler.USER) {
             sendToSocketService(SocketService.PING_CODE, from)
         }
 
+        /**
+         * Removes the messenger
+         */
         private fun removeMessenger() {
             sendToSocketService(SocketService.UNREGISTER_CLIENT_CODE)
         }
 
+        /**
+         * Sends a received message action to the socket service
+         */
         fun messageReceived(msg: String) {
             sendToSocketService(SocketService.RECEIVE_CODE, msg)
         }
 
+        /**
+         * Sends a delete unseen message action to the socket service
+         */
         fun deleteUnseenMsgs() {
             sendToSocketService(SocketService.DELETE_MSGS_CODE)
         }
 
+        /**
+         * Sends an action to open the bubble chat
+         */
         fun openBubbleChat() {
             sendToSocketService(SocketService.OPEN_BUBBLECHAT)
         }
 
+        /**
+         * Sends an action to close bubble chat
+         */
         fun closeBubbleChat() {
             sendToSocketService(SocketService.CLOSE_BUBBLECHAT)
         }
 
+        /**
+         * Sends an action to schedule a service destroy
+         */
         fun scheduleServiceDestroy() {
             sendToSocketService(SocketService.SCHEDULE_DESTROY_SERVICE)
         }
 
+        /**
+         * Sends an action to unschedule a service destroy
+         */
         fun unscheduleServiceDestroy() {
             sendToSocketService(SocketService.UNSCHEDULE_DESTROY_SERVICE)
         }
 
+        /**
+         * Unbind from the service
+         */
         fun unBind() {
             try {
                 removeMessenger()
@@ -297,6 +312,9 @@ class DataManager(private val invoker: String) {
             } catch (_:Exception) {}
         }
 
+        /**
+         * Bind to the service
+         */
         fun bind() {
             mContext.bindService(
                 Intent(

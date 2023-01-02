@@ -5,6 +5,9 @@ import android.media.AudioAttributes
 import android.media.SoundPool
 import com.dareangel.tmessager.R
 
+/**
+ * Plays a sound
+ */
 class SoundPlayer(
     mContext: Context
 ) {

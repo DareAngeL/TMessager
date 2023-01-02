@@ -13,17 +13,13 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.socket.client.IO
 import io.socket.client.Socket
-import org.json.JSONObject
 import java.util.*
-import kotlin.collections.HashMap
 import kotlin.concurrent.timerTask
 
 @Suppress("LocalVariableName", "PrivatePropertyName", "FunctionName")
 class SocketService: Service() {
 
     private var mConnected = false
-    // keys: inStr, inList
-    private var mUnseenMsgsMap = ""
 
     private var mBubbleChatWindow : BubbleChatWindow? = null
     private var mTimer: Timer? = null
@@ -46,7 +42,6 @@ class SocketService: Service() {
         const val RECEIVE = "rcv"
         const val DEL_UNSEEN = "delete_unseen_msgs"
         const val CHATMATE_JOINED = "chat-mate-joined"
-        const val GET_UNSEEN = "getunseen"
 
         // below are the flags for the socket service
         const val REGISTER_CLIENT_CODE = 1
@@ -68,8 +63,6 @@ class SocketService: Service() {
         const val SCHEDULE_DESTROY_SERVICE = 17
         const val UNSCHEDULE_DESTROY_SERVICE = 18
         const val IS_CONNECTED = 19
-        const val SET_UNSEEN_MSGS_JSON = 20
-        const val GET_UNSEEN_MSGS_JSON = 21
         const val CLOSE_TMESSAGER = 22
     }
 
@@ -84,12 +77,6 @@ class SocketService: Service() {
                 }
                 UNREGISTER_CLIENT_CODE -> {
                     mClients.remove(msg.replyTo)
-                }
-                SET_UNSEEN_MSGS_JSON -> {
-                    mUnseenMsgsMap = msg.data.getString("data")!!
-                }
-                GET_UNSEEN_MSGS_JSON -> {
-                    toStringSend(GET_UNSEEN_MSGS_JSON, mUnseenMsgsMap)
                 }
                 CONNECT_CODE -> {
                     connectToServer()
@@ -173,7 +160,7 @@ class SocketService: Service() {
 
         // init the socket io
         try {
-            mSocket = IO.socket(/*getString(R.string.server)*/"http://192.168.254.105:2022")
+            mSocket = IO.socket(getString(R.string.server)/*"http://192.168.254.105:2022"*/)
             _initSocketEvents()
         } catch (e: Exception) {
             throw Exception(e.message)

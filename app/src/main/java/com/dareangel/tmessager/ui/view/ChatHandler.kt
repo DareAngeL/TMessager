@@ -1,14 +1,11 @@
 package com.dareangel.tmessager.ui.view
 
 import android.content.Context
-import android.os.Build
-import android.util.Log
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
 import com.dareangel.tmessager.R
-import com.dareangel.tmessager.data.database.SocketService
+import com.dareangel.tmessager.data.UnseenMessagesClient
 import com.dareangel.tmessager.data.model.Message
 import com.dareangel.tmessager.manager.DataManager
 import com.dareangel.tmessager.ui.sound.SoundPlayer
@@ -17,6 +14,7 @@ import com.dareangel.tmessager.ui.view.messagesdisplayer.MessagesRecyclerview2
 import com.dareangel.tmessager.util.Utility
 import com.google.gson.Gson
 import com.google.gson.internal.LinkedTreeMap
+import com.google.gson.reflect.TypeToken
 import io.socket.emitter.Emitter
 import kotlinx.coroutines.*
 import org.json.JSONArray
@@ -37,7 +35,7 @@ class ChatHandler(
         }
 
     companion object {
-        val USER = "Babe Eziel"
+        const val USER = "Babe Rene"
     }
 
     private var mMessagesAdapter: MessagesAdapter? = null
@@ -130,7 +128,7 @@ class ChatHandler(
 
             if (isSeen) {
                 _addMessageFromChatmate(msgJson)
-                mDataManager?.socket?.sendToSocketService(SocketService.SET_UNSEEN_MSGS_JSON, "")
+                UnseenMessagesClient.save(mContext, "")
                 mDataManager?.socket?.messageReceived(msgStr)
             } else {
                 // stores the messages from the other peer.
@@ -140,11 +138,7 @@ class ChatHandler(
                     put("inList", mUnseenMessages)
                 }
 
-                mDataManager?.socket?.sendToSocketService(
-                    SocketService.SET_UNSEEN_MSGS_JSON,
-                    Gson().toJson(map)
-                )
-
+                UnseenMessagesClient.save(mContext, Gson().toJson(map))
                 onUnseenMsgs.invoke(mUnseenMessages.size)
             }
         }
@@ -154,12 +148,16 @@ class ChatHandler(
      * Seen a message from the other peer
      */
     fun messageSeen() {
-        val unseenMsgsMap = mDataManager?.socket!!.unseenMsgsMap
-        if (unseenMsgsMap.isEmpty())
+        val data = UnseenMessagesClient.getUnseens(mContext)
+        if (data!!.isEmpty())
             return
 
+        val unseenMsgsMap = Gson().fromJson<HashMap<String, Any>>(
+            data, object: TypeToken<HashMap<String, Any>>() {}.type
+        )
+
         val list = unseenMsgsMap["inList"] as ArrayList<*>
-        // parse the data and load the unseen messages from the other peer
+        // parse the data and store the unseen messages from the other peer to the database
         list.forEach {
             val tree = it as LinkedTreeMap<*, *>
             val jsonObj = JSONObject()
@@ -170,20 +168,12 @@ class ChatHandler(
                 jsonObj.put(keys.elementAt(0) as String, value[keys.elementAt(0)])
                 jsonObj.put(keys.elementAt(1) as String, value[keys.elementAt(1)])
             }
+
             _addMessageFromChatmate(jsonObj)
-            // add to the local database
-//            mDataManager!!.msgsDBTable.addMessage(
-//                Message(
-//                    jsonObj.getString("MSG"),
-//                    "",
-//                    mMessagesAdapter!!.rawDataSize,
-//                    ""
-//                )
-//            )
         }
 
         mDataManager?.socket?.messageReceived(unseenMsgsMap["inStr"] as String)
-        mDataManager?.socket?.sendToSocketService(SocketService.SET_UNSEEN_MSGS_JSON, "")
+        UnseenMessagesClient.save(mContext, "")
         // clear the unseen messages
         mUnseenMessages.clear()
     }

@@ -8,7 +8,6 @@ import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.Rect
 import android.os.Build
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -29,7 +28,7 @@ import kotlin.math.abs
 
 @RequiresApi(Build.VERSION_CODES.O)
 class BubbleChatHead(
-    private val mContext: Context,
+    mContext: Context,
     private val mWinManager: WindowManager,
     private val mDeviceScreenSpace: Rect,
     private val mTrashBin: BubbleChatTrashBin,
@@ -103,12 +102,18 @@ class BubbleChatHead(
         mParams.y = this.mBubbleChatPosition.y
     }
 
+    /**
+     * Moves the bubble chat head without animation
+     */
     override fun move(event: MotionEvent, x: Int, y: Int) {
         mParams.x = x
         mParams.y = y
         updatePosition()
     }
 
+    /**
+     * Moves the bubble chat head with animation
+     */
     override fun move(x: Float, y: Float, _interpolator: Interpolator, _duration: Long,
                       onMovingDone: () -> Unit)
     {
@@ -122,6 +127,9 @@ class BubbleChatHead(
         }.start(onMovingDone)
     }
 
+    /**
+     * When there's new unseen message update the indicator
+     */
     override fun onNewUnseenMessage(count: Int) {
         // shows the chat head when
         // there's a new message from the other peer
@@ -138,19 +146,26 @@ class BubbleChatHead(
         mUnseenText.text = count.toString()
     }
 
+    /**
+     * Updates the position of the chat head
+     */
     override fun updatePosition() {
         mWinManager.updateViewLayout(mRootView, mParams)
     }
 
+    /**
+     * Invalidates root view
+     */
     override fun update() {
         mRootView.invalidate()
     }
 
+    /**
+     * Show the chat head
+     */
     override fun show() {
-        var toX = -1
-
         initialize() // reset the position of the chat head
-        toX = mParams.x
+        val toX: Int = mParams.x
         mParams.x += mBubbleChatSize
         updatePosition()
         mParentView.alpha = 1f
@@ -160,6 +175,9 @@ class BubbleChatHead(
         move(toX.toFloat(), -1f, OvershootInterpolator(), 300)
     }
 
+    /**
+     * Hides the chat head
+     */
     override fun hide() {
         isInTrashBin = false
         isOnHide = true
@@ -178,6 +196,9 @@ class BubbleChatHead(
         })
     }
 
+    /**
+     * Opens the chat body
+     */
     private fun openChat() {
         val _screenHeight = mDeviceScreenSpace.bottom * 2
         val y = _screenHeight - mChatBody.height
@@ -189,10 +210,16 @@ class BubbleChatHead(
         mChatBody.show()
     }
 
+    /**
+     * Close the chat body
+     */
     private fun closeChat() {
         mChatBody.hide()
     }
 
+    /**
+     * On click
+     */
     override fun onSingleTapUp(e: MotionEvent): Boolean {
         isOnClick = true
         if (!mChatBody.isOpen) {
@@ -353,7 +380,7 @@ class BubbleChatHead(
                 }
                 // #region end
 
-                if (mChatBody!!.isOpen && moving)
+                if (mChatBody.isOpen && moving)
                     closeChat()
 
                 // #region: moves the bubble chat view

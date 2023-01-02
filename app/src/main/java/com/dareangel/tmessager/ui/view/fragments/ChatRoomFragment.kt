@@ -7,6 +7,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.transition.TransitionInflater
 import com.dareangel.tmessager.R
+import com.dareangel.tmessager.data.UnseenMessagesClient
 import com.dareangel.tmessager.data.model.Message
 import com.dareangel.tmessager.data.model.interfaces.IPullToLoadMoreListener
 import com.dareangel.tmessager.data.model.interfaces.IServerListener
@@ -18,13 +19,11 @@ import com.dareangel.tmessager.ui.view.MainActivity
 import com.dareangel.tmessager.ui.view.messagesdisplayer.MessagesAdapter
 import com.dareangel.tmessager.ui.view.messagesdisplayer.MessagesRecyclerViewOverScrollEffect
 import com.dareangel.tmessager.ui.view.messagesdisplayer.MessagesRecyclerviewLayoutManager
-import org.json.JSONObject
 
 /**
  * The fragment for the chat room view
  * @param mContext the parent activity context
- * @param mUser the user's username
- * @param isAddUser determine if the username should be inserted to the database or not.
+ * @param mDataManager the data presenter
  */
 class ChatRoomFragment(
     private val mContext : MainActivity,
@@ -67,10 +66,10 @@ class ChatRoomFragment(
     /**
      * Called when the client is successfully connected to the server
      */
-    private fun _init() {
+    private fun _init(isFirstInit: Boolean) {
         mChatHandler.initialize {
             //onMessageFetch
-            _hideConnectingView()
+            _hideConnectingView(isFirstInit)
         }
     }
 
@@ -156,7 +155,7 @@ class ChatRoomFragment(
     /**
      * Hides the connecting view
      */
-    private fun _hideConnectingView() {
+    private fun _hideConnectingView(isFirstInit: Boolean) {
         if (bindView?.connectingRoot == null)
             return
 
@@ -179,6 +178,12 @@ class ChatRoomFragment(
                         setHasFixedSize(true)
 
                         scrollToPosition(mChatHandler.messagesAdapter!!.itemCount-1)
+                    }
+                    if (!isFirstInit) {
+                        // seen a message if there's any unseen messages
+                        seenMessage()
+                    } else {
+                        UnseenMessagesClient.save(mContext, "")
                     }
 
                     mMessagesAdapter = mChatHandler.messagesAdapter
@@ -208,13 +213,10 @@ class ChatRoomFragment(
         )
     }
 
-    override fun onConnect() {
-        _init()
+    override fun onConnect(isFirstInit: Boolean) {
+        _init(isFirstInit)
     }
 
-    /**
-     * Called when client's chat mate disconnected
-     */
     override fun onDisconnect(it: Array<Any>) {
         mChatHandler.onDisconnect()
     }
@@ -223,9 +225,6 @@ class ChatRoomFragment(
         mChatHandler.onConnectError()
     }
 
-    /**
-     * Called whenever there's a new message from the chat mate
-     */
     override fun onNewMessage(it: Array<Any>) {
         mChatHandler.onNewMessage(it)
     }
@@ -234,37 +233,22 @@ class ChatRoomFragment(
         mChatHandler.messageSeen()
     }
 
-    /**
-     * Called whenever the sent message from the client was received by the other peer.
-     */
     override fun onMessageReceived(it: Array<Any>) {
         mChatHandler.onMessageReceived(it)
     }
 
-    /**
-     * Called when the message was sent to the server
-     */
     override fun onMessageSent(it: Array<Any>) {
         mChatHandler.onMessageSent(it)
     }
 
-    /**
-     * Called when the client successfully entered the chat room
-     */
     override fun onEnteredRoom(it: Array<Any>) {
         mChatHandler.onEnteredRoom(it)
     }
 
-    /**
-     * Called when the chat mate joined the room
-     */
     override fun onUserJoined(it: Array<Any>) {
         mChatHandler.onUserJoined(it)
     }
 
-    /**
-     * Called to close the application
-     */
     override fun closeApplication() {
         forceCloseActivityCallback.invoke()
     }
