@@ -35,7 +35,7 @@ class ChatHandler(
         }
 
     companion object {
-        const val USER = "Babe Rene"
+        const val USER = "Babe Eziel"
     }
 
     private var mMessagesAdapter: MessagesAdapter? = null

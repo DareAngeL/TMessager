@@ -33,6 +33,7 @@ class MessagesAdapter(
 
     private val mCoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
     private var mLoadedData : ArrayList<Message> = ArrayList()
+    private var mDataPositions : ArrayList<Int> = ArrayList()
     private var mRawData = mutableListOf<Message>().apply {
         addAll(data)
     }
@@ -67,6 +68,12 @@ class MessagesAdapter(
             } else {
                 mLoadedData = data.takeLast(20) as ArrayList
             }
+
+            mCoroutineScope.launch(Dispatchers.IO) {
+                mLoadedData.forEach {
+                    mDataPositions.add(it.pos!!)
+                }
+            }
         }
     }
 
@@ -81,11 +88,12 @@ class MessagesAdapter(
     }
 
     fun appendMessage(dataPresenter: DataManager, msg: Message, isAddToDB: Boolean) {
-        if (mLoadedData.contains(msg))
+        if (mLoadedData.contains(msg) || mDataPositions.contains(msg.pos))
             return
 
         mLoadedData.add(msg)
         mRawData.add(msg)
+        mDataPositions.add(msg.pos!!)
         // also adds to the local database
         if (isAddToDB)
             dataPresenter.msgsDBTable.addMessage(msg)
