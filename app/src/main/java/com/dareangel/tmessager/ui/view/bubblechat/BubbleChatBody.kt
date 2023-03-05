@@ -13,7 +13,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import androidx.core.view.updateLayoutParams
-import com.dareangel.tmessager.R
 import com.dareangel.tmessager.data.model.Message
 import com.dareangel.tmessager.data.model.interfaces.BubbleChat
 import com.dareangel.tmessager.data.model.interfaces.IPullToLoadMoreListener
@@ -28,6 +27,7 @@ import com.dareangel.tmessager.ui.view.messagesdisplayer.MessagesAdapter
 import com.dareangel.tmessager.ui.view.messagesdisplayer.MessagesRecyclerViewOverScrollEffect
 import com.dareangel.tmessager.ui.view.messagesdisplayer.MessagesRecyclerview2
 import com.dareangel.tmessager.ui.view.messagesdisplayer.MessagesRecyclerviewLayoutManager
+import com.dareangel.tmessager.R
 import io.github.florent37.shapeofview.shapes.CircleView
 import kotlinx.coroutines.*
 
@@ -60,6 +60,9 @@ class BubbleChatBody(
     var unseenMessagesListener: UnseenMessagesListener?
         get() = mUnseenMessagesListener
         set(value) {mUnseenMessagesListener=value}
+
+    val dataManager: DataManager
+        get() = mDataManager
 
     private val mInflater = mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     override val inflater: LayoutInflater
@@ -139,6 +142,7 @@ class BubbleChatBody(
                 val resendMsg = mChatHandler.messagesAdapter!!.getLoadedMessages()[position-1]
                 mDataManager.socket?.sendMessage(
                     DataManager.TSocket.SERVICE,
+                    resendMsg.id!!,
                     resendMsg.msg!!,
                     position-1,
                     Message.SENDING,
@@ -171,6 +175,7 @@ class BubbleChatBody(
                 // send the message to the client's chat mate
                 mDataManager.socket?.sendMessage(
                     DataManager.TSocket.SERVICE,
+                    Message.getUniqueID(),
                     msg,
                     mChatHandler.messagesAdapter!!.itemCount-1,
                     Message.SENDING
@@ -178,6 +183,7 @@ class BubbleChatBody(
             } else {
                 mDataManager.socket?.sendMessage(
                     DataManager.TSocket.SERVICE,
+                    Message.getUniqueID(),
                     msg,
                     mChatHandler.messagesAdapter!!.itemCount-1,
                     Message.NOT_SENT
@@ -186,7 +192,7 @@ class BubbleChatBody(
         }
     }
 
-    override fun update() {
+    fun initMessages() {
         mChatHandler.fetchMessages {
             // on messages fetched
             mChatHandler.msgRecyclerview?.apply {
@@ -197,9 +203,11 @@ class BubbleChatBody(
         }
     }
 
+    override fun update() {
+        mRootView.invalidate()
+    }
+
     override fun show() {
-        // cancel timer for destroying the service
-        mDataManager.socket?.unscheduleServiceDestroy()
         mIsOpen = true
         mParentRootView.visibility = View.VISIBLE
 
@@ -213,7 +221,6 @@ class BubbleChatBody(
     }
 
     override fun hide() {
-        mDataManager.socket?.scheduleServiceDestroy()
         mIsOpen = false
 
         Animator.animate(
@@ -241,7 +248,13 @@ class BubbleChatBody(
         if (invoker == DataManager.TSocket.UI)
             addToDB = false
 
-        mChatHandler.addMessage(ChatHandler.USER, it["msg"] as String, it["status"] as String, addToDB)
+        mChatHandler.addMessage(
+            it["id"] as String,
+            ChatHandler.USER,
+            it["msg"] as String,
+            it["status"] as String,
+            addToDB
+        )
     }
 
     override fun onConnect(isFirstInit: Boolean) {
@@ -275,7 +288,7 @@ class BubbleChatBody(
     }
 
     override fun onNewMessage(it: Array<Any>) {
-        mChatHandler.onNewMessage(it, isOpen) { count ->
+        mChatHandler.onNewMessage(it, mIsOpen) { count ->
             // call new unseen message if there's any
             mSoundPlayer.playNotificationSound()
             mUnseenMessagesListener!!.onNewUnseenMessage(count)

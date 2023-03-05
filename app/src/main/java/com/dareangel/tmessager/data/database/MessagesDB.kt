@@ -58,6 +58,7 @@ class MessagesDB : IMessagesTable {
                 val cursor = mDatabase.query(
                     DBConstants.TABLE_NAME,
                     arrayOf(
+                        DBConstants.ID,
                         DBConstants.POSITION, DBConstants.MESSAGE,
                         DBConstants.SENDER, DBConstants.STATUS
                     ),
@@ -71,6 +72,7 @@ class MessagesDB : IMessagesTable {
                 cursor.moveToFirst()
                 for (i in 0 until cursor.count) {
                     this@apply.add(Message(
+                        cursor.getString(cursor.getColumnIndexOrThrow(DBConstants.ID)),
                         cursor.getString(cursor.getColumnIndexOrThrow(DBConstants.MESSAGE)),
                         cursor.getString(cursor.getColumnIndexOrThrow(DBConstants.SENDER)),
                         cursor.getInt(cursor.getColumnIndexOrThrow(DBConstants.POSITION)),
@@ -94,6 +96,7 @@ class MessagesDB : IMessagesTable {
         mCoroutineScope.launch(Dispatchers.IO) {
             ContentValues().apply {
                 put(DBConstants.POSITION, msg.pos)
+                put(DBConstants.ID, msg.id)
                 put(DBConstants.MESSAGE, msg.msg)
                 put(DBConstants.SENDER, msg.sender)
                 put(DBConstants.STATUS, msg.status)

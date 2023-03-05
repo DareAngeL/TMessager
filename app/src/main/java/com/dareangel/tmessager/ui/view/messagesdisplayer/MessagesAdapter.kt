@@ -1,7 +1,6 @@
 package com.dareangel.tmessager.ui.view.messagesdisplayer
 
 import android.content.Context
-import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +9,6 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.dareangel.tmessager.R
@@ -33,6 +31,7 @@ class MessagesAdapter(
 
     private val mCoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
     private var mLoadedData : ArrayList<Message> = ArrayList()
+    private var mIDs : ArrayList<String> = ArrayList()
     private var mRawData = mutableListOf<Message>().apply {
         addAll(data)
     }
@@ -67,6 +66,12 @@ class MessagesAdapter(
             } else {
                 mLoadedData = data.takeLast(20) as ArrayList
             }
+
+            mCoroutineScope.launch(Dispatchers.IO) {
+                mLoadedData.forEach {
+                    mIDs.add(it.id!!)
+                }
+            }
         }
     }
 
@@ -81,11 +86,15 @@ class MessagesAdapter(
     }
 
     fun appendMessage(dataPresenter: DataManager, msg: Message, isAddToDB: Boolean) {
-        if (mLoadedData.contains(msg))
+        val id = msg.id!!
+
+        if (mIDs.contains(id))
             return
 
-        mLoadedData.add(msg)
         mRawData.add(msg)
+        mLoadedData.add(msg)
+        mIDs.add(id)
+
         // also adds to the local database
         if (isAddToDB)
             dataPresenter.msgsDBTable.addMessage(msg)
@@ -108,6 +117,7 @@ class MessagesAdapter(
 
         getLoadedMessages().apply {
             msg = Message(
+                this[posDataLevel].id,
                 this[posDataLevel].msg,
                 this[posDataLevel].sender,
                 this[posDataLevel].pos,

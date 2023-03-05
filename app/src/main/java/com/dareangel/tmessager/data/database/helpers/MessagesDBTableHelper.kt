@@ -15,7 +15,7 @@ class MessagesDBTableHelper(
 
     companion object {
         val DB_NAME = "MESSAGES.DB"
-        val DB_VERSION = 1
+        val DB_VERSION = 2
     }
 
     override fun onCreate(db: SQLiteDatabase?) {

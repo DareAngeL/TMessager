@@ -13,8 +13,8 @@ class BubbleChatAnimation(
     private val windowManager: WindowManager,
 ) {
 
-    private var x : ValueAnimator? = null
-    private var y : ValueAnimator? = null
+    private var _x : ValueAnimator? = ValueAnimator.ofInt(0, 1)
+    private var y : ValueAnimator? = ValueAnimator.ofInt(0, 1)
 
     private var mView: View? = null
     var view : View?
@@ -31,13 +31,13 @@ class BubbleChatAnimation(
         get() = mDuration
         set(value) { mDuration = value }
 
-    private var mToX: Float = -1f
-    var toX: Float
+    private var mToX: Int = -1
+    var toX: Int
         get() = mToX
         set(value) { mToX = value }
 
-    private var mToY: Float = -1f
-    var toY: Float
+    private var mToY: Int = -1
+    var toY: Int
         get() = mToY
         set(value) { mToY = value }
 
@@ -47,14 +47,14 @@ class BubbleChatAnimation(
         set(value) { mInterpolator = value }
 
     fun isRunning() : Boolean {
-        if (x == null && y == null)
+        if (_x == null && y == null)
             return false
 
-        return x!!.isRunning || y!!.isRunning
+        return _x!!.isRunning || y!!.isRunning
     }
 
     fun cancel() {
-        x?.cancel()
+        _x?.cancel()
         y?.cancel()
     }
 
@@ -62,28 +62,31 @@ class BubbleChatAnimation(
      * Starts the animation
      */
     fun start(onAnimationEnd: () -> Unit = {}) {
+        if (isRunning())
+            cancel()
+
         val param = winParam!!
-        x = ValueAnimator.ofFloat(param.x.toFloat(), toX).apply {
+        _x = ValueAnimator.ofInt(param.x, toX).apply {
             duration = mDuration
             interpolator = mInterpolator
             addUpdateListener {
-                param.x = (it.animatedValue as Float).toInt()
+                param.x = it.animatedValue as Int
                 windowManager.updateViewLayout(view, param)
             }
         }
 
-        val _toY: Float = if (toY == -1f) param.y.toFloat() else toY
-        y = ValueAnimator.ofFloat(param.y.toFloat(), _toY).apply {
+        val _toY: Int = if (toY == -1) param.y else toY
+        y = ValueAnimator.ofInt(param.y, _toY).apply {
             duration = mDuration
             interpolator = mInterpolator
             addUpdateListener {
-                param.y = (it.animatedValue as Float).toInt()
+                param.y = it.animatedValue as Int
                 windowManager.updateViewLayout(view, param)
             }
         }
 
         AnimatorSet().apply {
-            play(x).with(y)
+            play(_x).with(y)
             addListener(object: Animator.AnimatorListener {
                 override fun onAnimationStart(animation: Animator) {}
                 override fun onAnimationEnd(animation: Animator) {

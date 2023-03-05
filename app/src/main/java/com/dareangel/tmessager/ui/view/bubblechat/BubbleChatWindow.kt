@@ -52,7 +52,7 @@ class BubbleChatWindow(
             mWinManager.addView(mTrashBin.rootView, mTrashBin.layoutParams)
 
             // update or fetch the messages everytime the view added to the window
-            mChatBody.update()
+            mChatBody.initMessages()
         }
     }
 

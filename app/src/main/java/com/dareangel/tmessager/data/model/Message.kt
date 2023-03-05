@@ -1,5 +1,7 @@
 package com.dareangel.tmessager.data.model
 
+import java.util.UUID
+
 /**
  * The model for the message
  * @param sender who is the sender of the message
@@ -8,6 +10,7 @@ package com.dareangel.tmessager.data.model
  * @param status the status of the message, either sending/sent or not sent
  */
 data class Message(
+    val id: String? = null,
     val msg: String? = null,
     val sender: String? = null,
     val pos: Int? = null,
@@ -32,5 +35,7 @@ data class Message(
         enum class Type {
             RESEND, SEND
         }
+
+        fun getUniqueID() : String = UUID.randomUUID().toString()
     }
 }

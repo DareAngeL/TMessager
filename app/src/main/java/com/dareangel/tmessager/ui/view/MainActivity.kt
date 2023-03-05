@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.dareangel.tmessager.R
 import com.dareangel.tmessager.databinding.ActivityMainBinding
 import com.dareangel.tmessager.manager.DataManager
-import com.dareangel.tmessager.ui.sound.SoundPlayer
 import com.dareangel.tmessager.ui.view.fragments.ChatRoomFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -116,7 +115,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onStop() {
-        mDataManager.socket?.scheduleServiceDestroy()
         mDataManager.socket?.unBind()
         mDataManager.msgsDBTable.close(true)
         finishAffinity()

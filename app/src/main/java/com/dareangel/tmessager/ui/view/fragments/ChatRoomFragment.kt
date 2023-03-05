@@ -102,6 +102,7 @@ class ChatRoomFragment(
                 val resendMsg = mChatHandler.messagesAdapter!!.getLoadedMessages()[position-1]
                 mDataManager.socket?.sendMessage(
                     DataManager.TSocket.UI,
+                    resendMsg.id!!,
                     resendMsg.msg!!,
                     position-1,
                     Message.SENDING,
@@ -137,6 +138,7 @@ class ChatRoomFragment(
                 // notify the socket service that we want to send a message to the other peer
                 mDataManager.socket?.sendMessage(
                     DataManager.TSocket.UI,
+                    Message.getUniqueID(),
                     msg,
                     mChatHandler.messagesAdapter!!.itemCount-1,
                     Message.SENDING
@@ -144,6 +146,7 @@ class ChatRoomFragment(
             } else {
                 mDataManager.socket?.sendMessage(
                     DataManager.TSocket.UI,
+                    Message.getUniqueID(),
                     msg,
                     mChatHandler.messagesAdapter!!.itemCount-1,
                     Message.NOT_SENT
@@ -206,6 +209,7 @@ class ChatRoomFragment(
             return
 
         mChatHandler.addMessage(
+            it["id"] as String,
             ChatHandler.USER,
             it["msg"] as String,
             it["status"] as String,

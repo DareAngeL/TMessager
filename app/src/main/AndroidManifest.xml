@@ -9,7 +9,7 @@
 
     <application
         android:allowBackup="true"
-        android:name="TMessagerApp"
+        android:name="com.dareangel.tmessager.TMessagerApp"
         android:hardwareAccelerated="true"
         android:usesCleartextTraffic="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -21,7 +21,7 @@
         android:theme="@style/Theme.TMessager"
         tools:targetApi="31">
         <activity
-            android:name=".ui.view.MainActivity"
+            android:name="com.dareangel.tmessager.ui.view.MainActivity"
             android:windowSoftInputMode="adjustPan|stateHidden"
             android:hardwareAccelerated="true"
             android:exported="true">
@@ -33,7 +33,7 @@
         </activity>
 
         <service
-            android:name=".data.database.SocketService"
+            android:name="com.dareangel.tmessager.data.database.SocketService"
             android:enabled="true"
             android:exported="false" />
 

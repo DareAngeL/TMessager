@@ -15,7 +15,7 @@ class SoundPlayer(
     private val mSoundPool = SoundPool.Builder()
         .setMaxStreams(2)
         .setAudioAttributes(AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_MEDIA)
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
             .build()
         )
