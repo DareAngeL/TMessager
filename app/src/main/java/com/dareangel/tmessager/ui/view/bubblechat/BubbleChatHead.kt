@@ -54,6 +54,8 @@ class BubbleChatHead(
     private var isTrashAbsorbingBChat: Boolean = false
     private val mParamHolder = WindowManager.LayoutParams()
 
+    private var mAnimator : BubbleChatAnimation
+
     private val touchStartPointer = Point(-1, -1)
     private val mBubbleChatSize = Utility.dpToPx(mContext, 30)
 
@@ -85,6 +87,10 @@ class BubbleChatHead(
 
     init {
         initialize()
+        mAnimator = BubbleChatAnimation(mWinManager).apply {
+            view = mRootView
+            winParam = mParams
+        }
         mRootView.setOnTouchListener(this)
         mChatBody.unseenMessagesListener = this
     }
@@ -117,13 +123,11 @@ class BubbleChatHead(
     override fun move(x: Float, y: Float, _interpolator: Interpolator, _duration: Long,
                       onMovingDone: () -> Unit)
     {
-        BubbleChatAnimation(mWinManager).apply {
-            view = mRootView
-            winParam = mParams
+        mAnimator.apply {
             duration = _duration
             interpolator = _interpolator
-            toX = x
-            toY = y
+            toX = x.toInt()
+            toY = y.toInt()
         }.start(onMovingDone)
     }
 
@@ -164,6 +168,9 @@ class BubbleChatHead(
      * Show the chat head
      */
     override fun show() {
+        // cancel timer for destroying the service
+        mChatBody.dataManager.socket?.unscheduleServiceDestroy()
+
         initialize() // reset the position of the chat head
         val toX: Int = mParams.x
         mParams.x += mBubbleChatSize
@@ -179,6 +186,7 @@ class BubbleChatHead(
      * Hides the chat head
      */
     override fun hide() {
+        mChatBody.dataManager.socket?.scheduleServiceDestroy()
         isInTrashBin = false
         isOnHide = true
         move(

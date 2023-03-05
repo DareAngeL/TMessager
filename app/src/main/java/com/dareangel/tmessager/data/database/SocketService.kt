@@ -4,11 +4,12 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.os.*
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import com.dareangel.tmessager.R
 import com.dareangel.tmessager.ui.view.ChatHandler
 import com.dareangel.tmessager.ui.view.bubblechat.BubbleChatWindow
+import com.dareangel.tmessager.R
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.socket.client.IO
@@ -94,6 +95,7 @@ class SocketService: Service() {
                     )
 
                     val pos = (map["pos"] as Double).toInt()
+                    val id = map["id"] as String
                     val _msg = map["msg"] as String
                     val status = map["status"] as String
 
@@ -102,7 +104,7 @@ class SocketService: Service() {
 
                     // sends the message to the other peer
                     if (status != com.dareangel.tmessager.data.model.Message.NOT_SENT) {
-                        sendMessage(_msg, pos+1)
+                        sendMessage(id, _msg, pos+1, com.dareangel.tmessager.data.model.Message.SENDING)
                     }
                 }
                 DELETE_MSGS_CODE -> {
@@ -160,7 +162,7 @@ class SocketService: Service() {
 
         // init the socket io
         try {
-            mSocket = IO.socket(getString(R.string.server)/*"http://192.168.254.105:2022"*/)
+            mSocket = IO.socket(getString(R.string.server)) /*"http://192.168.254.105:2022"*/
             _initSocketEvents()
         } catch (e: Exception) {
             throw Exception(e.message)
@@ -213,13 +215,17 @@ class SocketService: Service() {
             }, 1000)
         }
 
+        mSocket.on(Socket.EVENT_DISCONNECT) {
+            mConnected = false
+        }
+
         mSocket.on(Socket.EVENT_CONNECT_ERROR) {
-            val errorBuilder = StringBuilder()
+//            val errorBuilder = StringBuilder()
             mConnected = false
 
-            for (i in it.indices) {
-                errorBuilder.append(it[i])
-            }
+//            for (i in it.indices) {
+//                errorBuilder.append(it[i])
+//            }
 
             toJSONSend(CONN_ERROR_CODE)
         }
@@ -297,8 +303,8 @@ class SocketService: Service() {
      * @param msg The message to be sent
      * @param position The position of the message on the recyclerview.
      */
-    fun sendMessage(msg : String, position: Int) {
-        mSocket.emit(SEND_MSG, ROOM_NAME, ChatHandler.USER, msg, position.toString())
+    fun sendMessage(id: String, msg : String, position: Int, status: String) {
+        mSocket.emit(SEND_MSG, ROOM_NAME, id, ChatHandler.USER, msg, position.toString(), status)
     }
 
     /**
@@ -366,7 +372,6 @@ class SocketService: Service() {
         val notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
         return notificationBuilder.setOngoing(true)
             .setContentTitle("TMessager is running")
-            .setContentText("You are online")
             .setSmallIcon(R.drawable.appicon)
             .setPriority(NotificationManager.IMPORTANCE_MIN)
             .setCategory(Notification.CATEGORY_SERVICE)

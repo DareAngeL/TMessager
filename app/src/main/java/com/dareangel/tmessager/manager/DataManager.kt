@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.*
+import android.util.Log
 import com.dareangel.tmessager.data.database.MessagesDB
 import com.dareangel.tmessager.data.database.SocketService
 import com.dareangel.tmessager.data.model.interfaces.IServerListener
@@ -62,6 +63,7 @@ class DataManager(private val invoker: String) {
                 when (msg.what) {
                     // called when the client is connected to the server
                     SocketService.CONNECTED_CODE -> {
+                        connected = true
                         mSocketListener.onConnect(true)
                     }
                     // called when the client connection is error
@@ -229,6 +231,7 @@ class DataManager(private val invoker: String) {
          */
         fun sendMessage(
             from: Int,
+            id: String,
             _msg : String,
             position: Int,
             status: String,
@@ -237,6 +240,7 @@ class DataManager(private val invoker: String) {
         ) {
             val map = HashMap<String, Any>().apply {
                 put("from", from)
+                put("id", id)
                 put("msg", _msg)
                 put("pos", position)
                 put("type", type)

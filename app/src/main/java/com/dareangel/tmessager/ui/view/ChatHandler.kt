@@ -1,6 +1,7 @@
 package com.dareangel.tmessager.ui.view
 
 import android.content.Context
+import android.util.Log
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
@@ -17,6 +18,7 @@ import com.google.gson.internal.LinkedTreeMap
 import com.google.gson.reflect.TypeToken
 import io.socket.emitter.Emitter
 import kotlinx.coroutines.*
+import okhttp3.internal.Util
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -35,7 +37,7 @@ class ChatHandler(
         }
 
     companion object {
-        const val USER = "Babe Eziel"
+        const val USER = "Babe Rene"
     }
 
     private var mMessagesAdapter: MessagesAdapter? = null
@@ -93,12 +95,18 @@ class ChatHandler(
     }
 
     private fun _addMessageFromChatmate(msgJson: JSONObject, isAddToDB: Boolean = true) {
-        addMessage("", msgJson.getString("MSG"), "", isAddToDB)
+        addMessage(
+            msgJson.getString("ID"),
+            "",
+            msgJson.getString("MSG"),
+            "",
+            isAddToDB
+        )
     }
 
-    fun addMessage(sender: String, msg: String, status: String?, isAddToDB: Boolean) {
+    fun addMessage(id: String, sender: String, msg: String, status: String?, isAddToDB: Boolean) {
         val pos = mMessagesAdapter!!.rawDataSize
-        val _msg = Message(msg, sender, pos, status)
+        val _msg = Message(id, msg, sender, pos, status)
 
         mMessagesAdapter!!.appendMessage(mDataManager!!, _msg, isAddToDB)
         msgRecyclerview!!.smoothScrollToPosition(mMessagesAdapter!!.itemCount-1)
@@ -224,7 +232,7 @@ class ChatHandler(
         }
     }
 
-    fun updateAdapterOnReceived(msgJSON: JSONObject) {
+    private fun updateAdapterOnReceived(msgJSON: JSONObject) {
         val pos = msgJSON.getString("POS").toInt()
         // gets the position of the message at the data level
         val posAtDataLevel = mMessagesAdapter?.getPosition(pos, MessagesAdapter.PositionType.DATA_POSITION)!!
@@ -257,18 +265,29 @@ class ChatHandler(
         checkUnseenMessagesFromServer(it)
     }
 
-    fun checkUnseenMessagesFromServer(it: Array<Any>) {
+    /**
+     * Invoked by onEnteredRoom function
+     */
+    private fun checkUnseenMessagesFromServer(it: Array<Any>) {
         mCoroutineScope.launch(Dispatchers.IO) {
             val msgs = JSONObject(it[0] as String)  // JSONArray(it[0] as String)
             val reneUnseenMsgs = msgs.getJSONArray("Rene")
             val ezielUnseenMsgs = msgs.getJSONArray("Eziel")
 
             if (USER.contains("Rene")) {
-                if (reneUnseenMsgs.length() > 0)
-                    onMessageReceived(arrayOf(reneUnseenMsgs.toString()))
+                if (reneUnseenMsgs.length() > 0) {
+                    val msgObj = reneUnseenMsgs[0] as JSONObject
+                    if (msgObj.getString("STAT").equals(Message.SEEN)) {
+                        onMessageReceived(arrayOf(reneUnseenMsgs.toString()))
+                    }
+                }
             } else {
-                if (ezielUnseenMsgs.length() > 0)
-                    onMessageReceived(arrayOf(ezielUnseenMsgs.toString()))
+                if (ezielUnseenMsgs.length() > 0) {
+                    val msgObj = ezielUnseenMsgs[0] as JSONObject
+                    if (msgObj.getString("STAT").equals(Message.SEEN)) {
+                        onMessageReceived(arrayOf(ezielUnseenMsgs.toString()))
+                    }
+                }
             }
 
             val chatmateUnseenMsgs: JSONArray = if (USER.contains("Rene")) {
