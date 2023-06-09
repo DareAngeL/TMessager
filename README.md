@@ -5,7 +5,7 @@
   
 <a href="https://www.apache.org/licenses/LICENSE-2.0">![](https://img.shields.io/badge/version-1.0-ff69b4)</a>
 
-A personal messaging app for fast and secure communication with girlfriend. Share messages with ease.
+A personal messaging app for fast and secure communication with my family. Share messages with ease.
 
 ## UI
 <img src="https://user-images.githubusercontent.com/45682972/210209848-32586809-8dbe-4e4d-b4d8-e2e84bb13acc.jpg" width="230" height="470">    <img src="https://user-images.githubusercontent.com/45682972/210210209-004210cf-f23e-47aa-bc76-b6c67ae77a59.jpg" width="230" height="470">
