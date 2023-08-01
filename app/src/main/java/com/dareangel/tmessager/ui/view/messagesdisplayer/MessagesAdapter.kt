@@ -1,7 +1,6 @@
 package com.dareangel.tmessager.ui.view.messagesdisplayer
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,41 +11,41 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.dareangel.tmessager.R
-import com.dareangel.tmessager.data.model.Message
-import com.dareangel.tmessager.data.model.Message.Companion.LAST_MSG
-import com.dareangel.tmessager.data.model.Message.Companion.MSG_INSERTED
-import com.dareangel.tmessager.data.model.Message.Companion.SECOND_LAST_MSG
-import com.dareangel.tmessager.data.model.interfaces.ILazyLoaderCallback
-import com.dareangel.tmessager.manager.DataManager
+import com.dareangel.tmessager.interfaces.ILazyLoaderCallback
+import com.dareangel.tmessager.model.Message
+import com.dareangel.tmessager.model.MessageData
+import com.dareangel.tmessager.ui.view.fragments.ChatRoomFragment
 import com.google.android.material.textview.MaterialTextView
 import io.github.florent37.shapeofview.shapes.CircleView
 import kotlinx.coroutines.*
 
 class MessagesAdapter(
     private val mContext: Context,
-    private val mUser: String,
-    data: ArrayList<Message>,
-    private val onItemClickListener: ItemListener
+    private val onItemClickListener: ItemListener,
+    private val lazyLoaderListener: ILazyLoaderCallback
 ) : RecyclerView.Adapter<MessagesAdapter.MessagesViewHolder>(), ILazyLoaderCallback {
 
-    private val mCoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
-    private var mLoadedData : ArrayList<Message> = ArrayList()
-    private var mIDs : ArrayList<String> = ArrayList()
-    private var mRawData = mutableListOf<Message>().apply {
-        addAll(data)
+    private val mData: ArrayList<MessageData> = ArrayList()
+    private var mUser = Message.USER
+    private var isNoMoreData = false // no more data from the database
+
+    companion object {
+        const val USER = 1
+        const val CHAT_MATE = 2
     }
 
-    private val MAX_MSG_TO_LOAD = 20
-    // use to determine of how many extra items in the recyclerview's data, other than the messages data.
-    private val EXTRA_ITEMS = 1
+    var data : ArrayList<MessageData>
+        get() = mData
+        set(value) {
+            mData.clear()
+            mData.addAll(value)
+        }
 
-    // #region: property access
-    val rawDataSize : Int
-        get() = mRawData.size
-
-    val rawData : MutableList<Message>
-        get() = mRawData
-    // #endregion
+    var noMoreData : Boolean
+        get() = isNoMoreData
+        set(value) {
+            isNoMoreData = value
+        }
 
     interface ItemListener {
         fun onItemClick(position: Int)
@@ -54,120 +53,13 @@ class MessagesAdapter(
         fun onResendClick(position: Int, status: String)
     }
 
-    enum class PositionType {
-        ADAPTER_POSITION,
-        DATA_POSITION
-    }
-
-    init {
-        if (data.isNotEmpty()) {
-            if (data.size <= 20) {
-                mLoadedData.addAll(data)
-            } else {
-                mLoadedData = data.takeLast(20) as ArrayList
-            }
-
-            mCoroutineScope.launch(Dispatchers.IO) {
-                mLoadedData.forEach {
-                    mIDs.add(it.id!!)
-                }
-            }
-        }
-    }
-
-    companion object {
-        val LOAD_MORE = 2
-    }
-
-    private var SHOW_SEND_STATUS_POS = -1
-    fun showSendStatus(pos: Int) {
-        SHOW_SEND_STATUS_POS = pos
-        notifyItemChanged(pos)
-    }
-
-    fun appendMessage(dataPresenter: DataManager, msg: Message, isAddToDB: Boolean) {
-        val id = msg.id!!
-
-        if (mIDs.contains(id))
-            return
-
-        mRawData.add(msg)
-        mLoadedData.add(msg)
-        mIDs.add(id)
-
-        // also adds to the local database
-        if (isAddToDB)
-            dataPresenter.msgsDBTable.addMessage(msg)
-
-        notifyChanges(MSG_INSERTED)
-        notifyChanges(SECOND_LAST_MSG)
-    }
-
-    fun getLoadedMessages() : ArrayList<Message> {
-        return mLoadedData
-    }
-
-    /**
-     * Update the message status at the specified position
-     * @param pos The position of the message at the adapter level
-     */
-    fun updateMessageStatus(pos: Int, status: String) : Message {
-        val posDataLevel = pos-1
-        lateinit var msg: Message
-
-        getLoadedMessages().apply {
-            msg = Message(
-                this[posDataLevel].id,
-                this[posDataLevel].msg,
-                this[posDataLevel].sender,
-                this[posDataLevel].pos,
-                status
-            ).apply {
-                val m = this
-                rawData.apply {
-                    this[posDataLevel] = m
-                }
-            }
-            this[posDataLevel] = msg
-        }
-
-        notifyItemChanged(pos)
-        return msg
-    }
-
     fun lazyLoadCallback() : ILazyLoaderCallback {
         return this
     }
 
-    fun isDataFullyLoaded() : Boolean {
-        return itemCount-EXTRA_ITEMS == mRawData.size
-    }
-
-    fun getPosition(pos: Int, posType: PositionType) : Int {
-        return if (posType == PositionType.DATA_POSITION) {
-            pos-1
-        } else {
-            pos
-        }
-    }
-
-    /**
-     * Notifies adapter about the changes on its last and second to the last data and update it.
-     * @param what Determine what item should be updated on the recyclerview.
-     *        Either LAST_MSG/SECOND_LAST_MSG/MSG_INSERTED
-     */
-    fun notifyChanges(what: Int) {
-        when (what) {
-            LAST_MSG -> {
-                notifyItemChanged(itemCount - 1)
-            }
-            SECOND_LAST_MSG -> {
-                notifyItemChanged(itemCount-2)
-            }
-            else -> {
-                notifyItemInserted(itemCount - 1)
-            }
-        }
+    fun getPositionOfMessageWithId(id: String) : Int {
+        // get the position of the message with the given id
+        return mData.indexOf(mData.find { it.id == id })
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessagesViewHolder {
@@ -175,8 +67,8 @@ class MessagesAdapter(
         val view = LayoutInflater.from(parent.context)
             .inflate(
                 when (viewType) {
-                    Message.USER -> R.layout.recycler_user_fragment
-                    Message.CHAT_MATE -> R.layout.recycler_chatmate_fragment
+                    USER -> R.layout.recycler_user_fragment
+                    CHAT_MATE -> R.layout.recycler_chatmate_fragment
                     else -> R.layout.recycler_loadmore_txt_fragment
                 }
                 , parent,
@@ -188,29 +80,22 @@ class MessagesAdapter(
 
     override fun getItemViewType(position: Int): Int {
         return when {
-            position == 0 -> {
-                LOAD_MORE
-            }
-            mUser == mLoadedData[position-1].sender -> {
-                Message.USER
-            }
-            else -> {
-                Message.CHAT_MATE
-            }
+            position == 0 -> 0
+            mUser == mData[position-1].sender -> USER
+            else -> CHAT_MATE
         }
     }
 
     override fun onBindViewHolder(holder: MessagesViewHolder, position: Int) {
         // the position at 0 is always the {load_more_txt} layout
         if (position == 0) {
-            _updateLoadToMoreTxt(holder)
+            updateLoadToMoreTxt(holder)
             return
         }
 
         holder.bind(
-            mLoadedData[position-1],
+            mData[position-1],
             position,
-            SHOW_SEND_STATUS_POS == position,
             itemCount-1 == position
         )
 
@@ -223,62 +108,41 @@ class MessagesAdapter(
                 15
             )
         }
-
-        SHOW_SEND_STATUS_POS = -1
     }
 
     override fun getItemCount(): Int {
-        return mLoadedData.size + EXTRA_ITEMS
+        return mData.size + 1
     }
 
     /**
      * Called when the user wants to load more messages data by pulling down the recyclerview
      */
     override fun onLoadMoreData() {
-        // * see how many are left if 20 + the total loaded data were taken from {data},
-        // * if the total item left is bigger than or equal to zero then take the 20 items
-        // * else if the total item left is less than zero then let's just take the items left.
-        val count = mRawData.size - (mLoadedData.size + MAX_MSG_TO_LOAD)
-        if (count >= 0) {
-            mLoadedData = (mRawData.takeLast(mLoadedData.size+MAX_MSG_TO_LOAD).filter {
-                !mLoadedData.contains(it)
-            } + mLoadedData.take(mLoadedData.size)) as ArrayList<Message>
-
-            notifyItemRangeInserted(0, MAX_MSG_TO_LOAD)
-        } else {
-            val dat = mRawData.take(count+MAX_MSG_TO_LOAD) + mLoadedData.take(mLoadedData.size)
-            if (dat.isNotEmpty()) {
-                mLoadedData = dat as ArrayList<Message>
-                notifyItemRangeInserted(0, count+MAX_MSG_TO_LOAD)
-            }
-        }
+        lazyLoaderListener.onLoadMoreData()
     }
 
     // # region: private functions
-
-    private fun _updateLoadToMoreTxt(holder: MessagesViewHolder) {
+    private fun updateLoadToMoreTxt(holder: MessagesViewHolder) {
         val view = holder.itemView
         val text = view.findViewById<MaterialTextView>(R.id.text)
         val arrow = view.findViewById<ImageView>(R.id.arrow)
-        // if the data is fully loaded then change the text
-        // {load_more_txt} to {no_more_msg_txt}. Otherwise, don't change it.
-        if (isDataFullyLoaded()) {
-            // Just hide the load more text when
-            // there are only less than 20 text messages.
-            // Otherwise, don't hide it.
-            if (mRawData.size <= 20) {
-                text.text = mContext.getString(R.string.new_msgs_txt)
-                arrow.visibility = View.GONE
-                return
-            } else if (mRawData.isEmpty()) {
-                text.text = mContext.getString(R.string.no_msgs_txt)
-                arrow.visibility = View.GONE
-                return
+
+        if (isNoMoreData || mData.size < Message.MAX_MSG_TO_LOAD) {
+
+            if (!isNoMoreData) {
+                isNoMoreData = true
             }
 
             text.text = mContext.getString(R.string.no_more_msg_txt)
             arrow.visibility = View.GONE
-        } else {
+
+            return
+        }
+
+        if (mData.isEmpty()) {
+            text.text = mContext.getString(R.string.no_msgs_txt)
+            arrow.visibility = View.GONE
+        } else if (mData.size >= Message.MAX_MSG_TO_LOAD) {
             text.text = mContext.getString(R.string.load_more_txt)
             arrow.visibility = View.VISIBLE
         }
@@ -300,85 +164,69 @@ class MessagesAdapter(
         private var mResendBtn : CircleView? = null
 
         private var mDefaultTextRootColorInt = ContextCompat.getColor(mContext, R.color.pinkDark)
-        private var mNotSentTextRootColorInt = ContextCompat.getColor(mContext, android.R.color.darker_gray)
-
-        private var mItemPosition = -1
-        private var mItemStatus = ""
 
         private val TAG = "MessagesAdapter"
 
         init {
             mText = itemView.findViewById(R.id.text)
             mParent = itemView.findViewById(R.id.parent)
+            mChatmateTxt = itemView.findViewById(R.id.chatMate)
 
-            if (viewType != Message.CHAT_MATE) {
+            if (viewType == USER) {
                 mSendStatus = itemView.findViewById(R.id.sendStatus)
                 mTextRoot = itemView.findViewById(R.id.textRoot)
                 mResendBtn = itemView.findViewById(R.id.resend)
-
-                mTextRoot?.setOnClickListener {
-                    onItemClicked.onItemClick(mItemPosition)
-                }
-
-                mTextRoot?.setOnLongClickListener {
-                    onItemClicked.onItemLongClick()
-                    return@setOnLongClickListener true
-                }
-
-                mResendBtn?.setOnClickListener {
-                    onItemClicked.onResendClick(mItemPosition, mItemStatus)
-                }
-            } else {
-                mChatmateTxt = itemView.findViewById(R.id.babeTxt)
             }
         }
 
         fun bind(
-            message: Message,
+            message: MessageData,
             pos: Int,
-            isShowSendStatus: Boolean,
             isLastPos: Boolean
         ) {
-            mItemPosition = pos
-            mItemStatus = message.status!!
 
-            when (message.status) {
-                Message.SENDING -> {
+            mResendBtn?.visibility = View.GONE
+
+            mTextRoot?.setOnClickListener {
+                if (mSendStatus?.visibility == View.VISIBLE) {
+                    mSendStatus?.visibility = View.GONE
+                } else {
                     mSendStatus?.visibility = View.VISIBLE
-                    mResendBtn?.visibility = View.GONE
-                    mTextRoot?.background?.setTint(mDefaultTextRootColorInt)
-                    mSendStatus?.text = Message.SENDING
                 }
-                Message.NOT_SENT -> {
-                    mSendStatus?.visibility = View.VISIBLE
-                    mResendBtn?.visibility = View.VISIBLE
-                    mTextRoot?.background?.setTint(mNotSentTextRootColorInt)
-                    mSendStatus?.text = Message.NOT_SENT
-                }
-                Message.SEEN -> {
+            }
+
+            when {
+                message.seenBy.isNotEmpty() -> {
                     mTextRoot?.background?.setTint(mDefaultTextRootColorInt)
-                    mResendBtn?.visibility = View.GONE
-                    mSendStatus?.text = Message.SEEN
+                    mSendStatus?.text = "Seen"
                     if (!isLastPos)
                         mSendStatus?.visibility = View.GONE
                     else
                         mSendStatus?.visibility = View.VISIBLE
                 }
-                else -> {
-                    mSendStatus?.text = Message.SENT
-                    mResendBtn?.visibility = View.GONE
+
+                message.status == MessageData.STATUS_SENDING -> {
+                    mSendStatus?.visibility = View.VISIBLE
+                    mTextRoot?.background?.setTint(mDefaultTextRootColorInt)
+                    mSendStatus?.text = "Sending..."
+                }
+
+                message.status == MessageData.STATUS_SENT -> {
+                    mSendStatus?.text = "Sent"
                     mTextRoot?.background?.setTint(mDefaultTextRootColorInt)
                     if (isLastPos)
                         mSendStatus?.visibility = View.VISIBLE
-                    else if (isShowSendStatus)
-                        mSendStatus?.visibility = View.VISIBLE
-                    else
-                        mSendStatus?.visibility = View.GONE
+                    else {
+                        if (message.status == MessageData.STATUS_SENT)
+                            mSendStatus?.visibility = View.GONE
+                        else
+                            mSendStatus?.visibility = View.VISIBLE
+                    }
                 }
             }
 
             mChatmateTxt?.text = "Babe"
-            mText?.text = message.msg
+            mText?.text = message.message
         }
 
         fun parent() : RelativeLayout? {

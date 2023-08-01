@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.dareangel.tmessager.data.model.interfaces.IPullToLoadMoreListener;
+import com.dareangel.tmessager.interfaces.IPullToLoadMoreListener;
 
 public class MessagesRecyclerview2 extends RecyclerView {
 

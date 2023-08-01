@@ -22,7 +22,7 @@
                 android:layout_height="80dp"
                 android:layout_gravity="center"
                 android:scaleType="centerCrop"
-                android:translationY="25dp"
+                android:translationY="0dp"
                 app:lottie_autoPlay="false"
                 app:lottie_loop="true"
                 app:lottie_rawRes="@raw/onloadmore"
@@ -106,31 +106,13 @@
             android:id="@+id/toolbar"
             android:background="@drawable/bg_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="60dp">
 
             <RelativeLayout
                 android:id="@+id/appNameRoot"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="15dp">
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/materialTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/agentur_display"
-                    android:text="@string/app_name"
-                    android:textColor="@color/pinkDark"
-                    android:textSize="28sp"
-                    android:textStyle="bold"/>
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_toEndOf="@id/materialTextView"
-                    android:contentDescription="@null"
-                    android:src="@drawable/ic_send"
-                    app:tint="@color/pinkDark" />
 
             </RelativeLayout>
 
@@ -158,59 +140,6 @@
                 android:textSize="14sp" />
 
         </RelativeLayout>
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/connectingRoot"
-        android:background="@color/white"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="15dp"
-            android:layout_above="@id/connectingLottie"
-            android:layout_centerHorizontal="true">
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/materialTextView2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/agentur_display"
-                android:text="@string/app_name"
-                android:textColor="@color/pinkDark"
-                android:textSize="38sp"
-                android:textStyle="bold"/>
-
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_toEndOf="@id/materialTextView2"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_send"
-                app:tint="@color/pinkDark" />
-
-        </RelativeLayout>
-
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/connectingLottie"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            app:lottie_autoPlay="true"
-            app:lottie_loop="true"
-            app:lottie_rawRes="@raw/connecting" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/connectingLottie"
-            android:layout_centerHorizontal="true"
-            android:fontFamily="@font/proximanova_regular"
-            android:text="Connecting..."
-            tools:ignore="HardcodedText,TextContrastCheck" />
 
     </RelativeLayout>
 

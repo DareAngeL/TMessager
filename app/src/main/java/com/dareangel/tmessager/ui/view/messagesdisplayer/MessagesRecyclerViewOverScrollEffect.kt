@@ -25,7 +25,7 @@ class MessagesRecyclerViewOverScrollEffect : RecyclerView.EdgeEffectFactory() {
 
     private val mCoroutineScope = CoroutineScope(Job() + Dispatchers.Default)
 
-    private var mLoadMoreOffsetRatio = 1.5f // the default offset ratio
+    private var mLoadMoreOffsetRatio = 2f // the default offset ratio
     var loadMoreOffsetRatio: Float
         get() = mLoadMoreOffsetRatio
         set(value) {mLoadMoreOffsetRatio=value}
@@ -105,9 +105,7 @@ class MessagesRecyclerViewOverScrollEffect : RecyclerView.EdgeEffectFactory() {
                 if (recycler.translationY != 0f) {
                     recycler.pullToLoadMoreListener?.onRelease()
                     // load more data if the translation surpassed the 100 value mark
-                    if (recycler.translationY >= 100 &&
-                        !recycler.messageAdapter!!.isDataFullyLoaded()
-                    ) {
+                    if (recycler.translationY >= 100 && !(recycler.adapter as MessagesAdapter).noMoreData) {
                         animateOnRelease(
                             true,
                             recycler.pullToLoadMoreView!!.measuredHeight.toFloat() / loadMoreOffsetRatio

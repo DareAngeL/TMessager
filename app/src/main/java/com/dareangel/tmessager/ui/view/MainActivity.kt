@@ -1,13 +1,18 @@
 package com.dareangel.tmessager.ui.view
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.os.*
 import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.dareangel.tmessager.R
 import com.dareangel.tmessager.databinding.ActivityMainBinding
-import com.dareangel.tmessager.manager.DataManager
+import com.dareangel.tmessager.`object`.ForegroundNotification.CHANNEL_ID
+import com.dareangel.tmessager.service.MessagingService
 import com.dareangel.tmessager.ui.view.fragments.ChatRoomFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -15,7 +20,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 class MainActivity : AppCompatActivity() {
 
     private lateinit var bindView : ActivityMainBinding
-    private lateinit var mDataManager : DataManager
 
     private var hasSavedInstance = false
     private var hasInitializedAlready = false
@@ -27,17 +31,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(bindView.root)
 
         hasSavedInstance = savedInstanceState != null
-        _checkPermissions()
-    }
-
-    /**
-     * Called when user closes the running services.
-     * We will also close the application
-     */
-    private fun forceCloseActivityCallback(): () -> Unit = {
-        mDataManager.socket?.unBind()
-        mDataManager.msgsDBTable.close(true)
-        finishAffinity()
+        checkPermissions()
     }
 
     private fun _init() {
@@ -45,30 +39,40 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        mDataManager = DataManager(this.javaClass.name)
-        _initFragments()
+        // create the notification channel
+        createNotificationChannel()
+        // init the fragments
+        initFragments()
         hasInitializedAlready = true
     }
 
-    private fun _initFragments() {
-        // open the messages table
-        mDataManager.msgsDBTable.open(this)
-
+    private fun initFragments() {
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.fragmentsRoot,
                 ChatRoomFragment(
-                    this@MainActivity,
-                    mDataManager
-                ).also {
-                    it.forceCloseActivityCallback = forceCloseActivityCallback()
-                })
+                    this@MainActivity
+                ))
             setReorderingAllowed(true)
         }.commit()
     }
 
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.channel_name)
+            val descriptionText = getString(R.string.channel_description)
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
     private var isAlertDlgShowing = false
     @RequiresApi(Build.VERSION_CODES.M)
-    private fun _checkPermissions() {
+    private fun checkPermissions() {
         //#region: overlay permission
         when(Settings.canDrawOverlays(this)) {
             true -> {
@@ -103,21 +107,6 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onResume() {
         super.onResume()
-        _checkPermissions()
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onPause() {
-        if (mDataManager.socket?.connected!!)
-            mDataManager.socket?.openBubbleChat()
-
-        super.onPause()
-    }
-
-    override fun onStop() {
-        mDataManager.socket?.unBind()
-        mDataManager.msgsDBTable.close(true)
-        finishAffinity()
-        super.onStop()
+        checkPermissions()
     }
 }

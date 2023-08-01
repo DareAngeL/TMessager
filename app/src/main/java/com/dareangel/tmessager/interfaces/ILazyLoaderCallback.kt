@@ -1,4 +1,4 @@
-package com.dareangel.tmessager.data.model.interfaces
+package com.dareangel.tmessager.interfaces
 
 interface ILazyLoaderCallback {
 

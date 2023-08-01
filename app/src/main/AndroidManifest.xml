@@ -33,7 +33,7 @@
         </activity>
 
         <service
-            android:name="com.dareangel.tmessager.data.database.SocketService"
+            android:name="com.dareangel.tmessager.service.MessagingService"
             android:enabled="true"
             android:exported="false" />
 

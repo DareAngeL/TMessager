@@ -1,33 +1,34 @@
 {
   "project_info": {
-    "project_number": "189200180962",
-    "project_id": "tmessager-5f97c",
-    "storage_bucket": "tmessager-5f97c.appspot.com"
+    "project_number": "877078134400",
+    "firebase_url": "https://tmessager-791f2-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "tmessager-791f2",
+    "storage_bucket": "tmessager-791f2.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:189200180962:android:8e8cb9188ce36aa66160bb",
+        "mobilesdk_app_id": "1:877078134400:android:8a870b059eeaa706097065",
         "android_client_info": {
           "package_name": "com.dareangel.tmessager"
         }
       },
       "oauth_client": [
         {
-          "client_id": "189200180962-vckvmh3qemtdjo5fr2bqls4mrcst7u18.apps.googleusercontent.com",
+          "client_id": "877078134400-41aj08e8jkcm2mit4m0203n0576mn2ji.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCRNetpfUrJB4k6oU7DqIhmTNEODfPfkFs"
+          "current_key": "AIzaSyB9kgrg_YbYfKPpvd6Csp5trM63gl5wdz8"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "189200180962-vckvmh3qemtdjo5fr2bqls4mrcst7u18.apps.googleusercontent.com",
+              "client_id": "877078134400-41aj08e8jkcm2mit4m0203n0576mn2ji.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
