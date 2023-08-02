@@ -1,5 +1,6 @@
 package com.dareangel.tmessager.presenter
 
+import android.os.Messenger
 import com.dareangel.tmessager.interfaces.MessageListener
 import com.dareangel.tmessager.model.Message
 import com.dareangel.tmessager.model.MessageData
@@ -13,12 +14,20 @@ class MessagePresenter(
         msgListener = this@MessagePresenter
     }
 
+    fun setUIMessenger(messenger: Messenger?) {
+        message.uiMessenger = messenger
+    }
+
     fun sendMessage(msg: String) {
         message.send(msg)
     }
 
     fun fetchMessages() {
         message.fetchMessages()
+    }
+
+    fun fetchUnseenMessages() {
+        message.fetchUnseenMessages()
     }
 
     fun loadMoreMessages() {

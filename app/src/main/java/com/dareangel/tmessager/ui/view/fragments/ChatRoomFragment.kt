@@ -141,8 +141,6 @@ class ChatRoomFragment(
             if (msg.isNotEmpty()) {
                 // send the message to the service
                 sendDataToMessagingService(MessengerCodes.SEND_MSG, msg)
-                // TODO: add the message to the recyclerview
-                // TODO: scroll to the last message
             }
         }
     }
@@ -182,6 +180,8 @@ class ChatRoomFragment(
         mMessagesAdapter!!.noMoreData = false
         bindView!!.msgListRecyclerView.adapter?.notifyDataSetChanged()
         bindView!!.msgListRecyclerView.smoothScrollToPosition(mMessagesAdapter?.data?.size!!)
+
+        sendDataToMessagingService(MessengerCodes.FETCH_UNSEEN_MSGS)
     }
 
     /**
@@ -220,17 +220,25 @@ class ChatRoomFragment(
      * Called when the message is sent successfully and updates the UI
      */
     override fun onMessageSent(msg: MessageData) {
+        if (mMessagesAdapter!!.data.size == 0) return
+
         val position = mMessagesAdapter!!.getPositionOfMessageWithId(msg.id)
+
+        if (position == -1) return
+
         mMessagesAdapter!!.data[position] = msg
         bindView!!.msgListRecyclerView.adapter?.notifyItemChanged(position+1)
         bindView!!.msgListRecyclerView.adapter?.notifyItemChanged(position)
-
-        Database.updateMessage(msg)
     }
 
     override fun onMessageSeen(msg: MessageData) {
+        if (mMessagesAdapter!!.data.size == 0) return
+
         val position = mMessagesAdapter!!.getPositionOfMessageWithId(msg.id)
+        if (position == -1) return
+
         mMessagesAdapter!!.data[position] = msg
+
         bindView!!.msgListRecyclerView.adapter?.notifyItemChanged(position+1)
         bindView!!.msgListRecyclerView.adapter?.notifyItemChanged(position)
     }
@@ -249,11 +257,6 @@ class ChatRoomFragment(
         mMessagesAdapter!!.data.add(message)
         bindView!!.msgListRecyclerView.adapter?.notifyItemInserted(mMessagesAdapter!!.data.size)
         bindView!!.msgListRecyclerView.smoothScrollToPosition(mMessagesAdapter!!.data.size)
-
-        if (message.status == MessageData.STATUS_SEEN) return
-        // update the message's status in the database to seen
-        message.seenBy = com.dareangel.tmessager.model.Message.USER
-        Database.updateMessage(message)
     }
 
     override fun onStart() {

@@ -34,6 +34,10 @@ class IncomingDataFromUIHandler(
             MessengerCodes.REMOVE_MESSENGER_CLIENT -> {
                 msgService.removeMessengerClient()
             }
+
+            MessengerCodes.FETCH_UNSEEN_MSGS -> {
+                msgService.fetchUnseenMessages()
+            }
         }
     }
 

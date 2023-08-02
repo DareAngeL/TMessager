@@ -15,6 +15,14 @@ object Database {
     private var dbRef : DatabaseReference? = null
     private var userActiveRef : DatabaseReference? = null
 
+    private var mTotalOnline = 0
+
+    var totalOnline : Int
+        get() = mTotalOnline
+        set(value) {
+            mTotalOnline = value
+        }
+
     fun initialize(context: Context) {
 
         if (db != null) {
@@ -24,6 +32,7 @@ object Database {
         // initialize database
         db = Firebase.database(context.getString(R.string.db_ref))
         db?.setPersistenceEnabled(true)
+        // sync
         dbRef = db?.reference
         userActiveRef = dbRef?.child("Active")
 

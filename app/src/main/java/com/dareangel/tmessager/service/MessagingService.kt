@@ -47,8 +47,8 @@ class MessagingService : Service(), MessageListener {
         } else {
             intent?.getParcelableExtra("messenger")
         }
-
-        println("UIMessnger: $uiMessenger")
+        // set the messenger to the message presenter
+        messagePresenter.setUIMessenger(uiMessenger!!)
 
         return START_NOT_STICKY
     }
@@ -68,6 +68,13 @@ class MessagingService : Service(), MessageListener {
     }
 
     /**
+     * Fetches unseen messages from the database
+     */
+    fun fetchUnseenMessages() {
+        messagePresenter.fetchUnseenMessages()
+    }
+
+    /**
      * Loads more messages from the database
      */
     fun loadMoreMessages() {
@@ -76,6 +83,7 @@ class MessagingService : Service(), MessageListener {
 
     fun removeMessengerClient() {
         uiMessenger = null
+        messagePresenter.setUIMessenger(null)
     }
 
     override fun onFetchMessages(messages: ArrayList<MessageData>) {
@@ -91,6 +99,12 @@ class MessagingService : Service(), MessageListener {
     }
 
     override fun onMessageSeen(msg: MessageData) {
+        // if uiMessenger is null, it means that the user closed the app
+        // so we don't need to send the message to the UI
+        if (uiMessenger == null) {
+            return
+        }
+
         sendDataToUI(MessengerCodes.MSG_SEEN, msg)
     }
 

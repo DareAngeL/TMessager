@@ -10,4 +10,5 @@ object MessengerCodes {
     const val NEW_MSG = 5
     const val MSG_SEEN = 6
     const val REMOVE_MESSENGER_CLIENT = 7
+    const val FETCH_UNSEEN_MSGS = 8
 }

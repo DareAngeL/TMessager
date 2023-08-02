@@ -57,6 +57,7 @@ dependencies {
     // ---------
     implementation 'com.airbnb.android:lottie:6.1.0'
     implementation 'io.github.florent37:shapeofview:1.4.7'
+    implementation 'tk.zielony:carbon:0.17.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

@@ -196,7 +196,7 @@ class MessagesAdapter(
             }
 
             when {
-                message.seenBy.isNotEmpty() -> {
+                message.status == MessageData.STATUS_SEEN -> {
                     mTextRoot?.background?.setTint(mDefaultTextRootColorInt)
                     mSendStatus?.text = "Seen"
                     if (!isLastPos)
