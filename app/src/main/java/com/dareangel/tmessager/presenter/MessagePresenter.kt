@@ -1,16 +1,18 @@
 package com.dareangel.tmessager.presenter
 
+import android.content.Context
 import android.os.Messenger
 import com.dareangel.tmessager.interfaces.MessageListener
 import com.dareangel.tmessager.model.Message
 import com.dareangel.tmessager.model.MessageData
 
 class MessagePresenter(
+    cn: Context,
     private val msgListener: MessageListener
 ) : MessageListener
 {
 
-    private val message = Message().apply {
+    private val message = Message(cn).apply {
         msgListener = this@MessagePresenter
     }
 

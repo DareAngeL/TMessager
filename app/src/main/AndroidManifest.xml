@@ -1,31 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.dareangel.tmessager">
+    package="com.dareangel.tmessager" >
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:allowBackup="true"
         android:name="com.dareangel.tmessager.TMessagerApp"
-        android:hardwareAccelerated="true"
-        android:usesCleartextTraffic="true"
+        android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
+        android:hardwareAccelerated="true"
         android:icon="@drawable/appicon"
         android:label="@string/app_name"
         android:roundIcon="@drawable/appicon"
         android:supportsRtl="true"
         android:theme="@style/Theme.TMessager"
-        tools:targetApi="31">
+        android:usesCleartextTraffic="true"
+        tools:targetApi="31" >
+
         <activity
-            android:name="com.dareangel.tmessager.ui.view.MainActivity"
-            android:windowSoftInputMode="adjustPan|stateHidden"
+            android:name=".ui.view.MainActivity"
+            android:exported="true"
             android:hardwareAccelerated="true"
-            android:exported="true">
-            <intent-filter>
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustPan|stateHidden" >
+            <intent-filter >
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -36,7 +39,6 @@
             android:name="com.dareangel.tmessager.service.MessagingService"
             android:enabled="true"
             android:exported="false" />
-
     </application>
 
 </manifest>

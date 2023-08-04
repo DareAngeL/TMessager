@@ -32,7 +32,7 @@ class IncomingDataFromUIHandler(
             }
 
             MessengerCodes.REMOVE_MESSENGER_CLIENT -> {
-                msgService.removeMessengerClient()
+                msgService.removeMessengerUI()
             }
 
             MessengerCodes.FETCH_UNSEEN_MSGS -> {

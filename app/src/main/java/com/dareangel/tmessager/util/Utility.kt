@@ -2,11 +2,17 @@ package com.dareangel.tmessager.util
 
 import android.app.ActivityManager
 import android.content.Context
+import android.content.SharedPreferences
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
 import android.util.DisplayMetrics
 import android.util.Size
 import android.view.WindowInsets
 import android.view.WindowManager
+import androidx.core.content.ContextCompat.getSystemService
+import com.google.gson.Gson
+
 
 object Utility {
 
@@ -65,5 +71,44 @@ object Utility {
             }
         }
         return null
+    }
+
+    fun pingInternet(onPingResult: (Boolean) -> Unit) {
+        val runtime = Runtime.getRuntime()
+        try {
+            val process = runtime.exec("/system/bin/ping -c 1 8.8.8.8")
+            val exitValue = process.waitFor()
+            if (exitValue == 0) {
+                // ping was successful
+                onPingResult(true)
+            } else {
+                // ping failed
+                onPingResult(false)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+    }
+
+    fun getFromCache(cn: Context, prefName: String, key: String, cl: Class<*>) : Any? {
+        val sharedPref: SharedPreferences =
+            cn.getSharedPreferences(prefName, Context.MODE_PRIVATE)
+
+        val objJSON = sharedPref.getString(key, null)
+        return if (objJSON != null) {
+            Gson().fromJson(objJSON, cl)
+        } else {
+            null
+        }
+    }
+
+    fun saveToCache(cn: Context, prefName: String, key: String, any: Any) {
+        val sharedPref: SharedPreferences =
+            cn.getSharedPreferences(prefName, Context.MODE_PRIVATE)
+
+        val objJSON = Gson().toJson(any)
+
+        sharedPref.edit().putString(key, objJSON).apply()
     }
 }

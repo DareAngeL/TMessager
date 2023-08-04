@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/blackLight"
+    android:fitsSystemWindows="true"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:id="@+id/onLoadMoreRoot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/blackLight">
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/lottie"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                android:translationY="0dp"
+                app:lottie_autoPlay="false"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/onloadmore"
+                app:lottie_speed="5"/>
+
+        </FrameLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollView"
+            android:layout_below="@id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <RelativeLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.dareangel.tmessager.ui.view.messagesdisplayer.MessagesRecyclerview2
+                    android:id="@+id/msgListRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_above="@id/writeMsgRoot"
+                    android:background="@color/blackLight"
+                    android:scrollbars="none" />
+
+                <LinearLayout
+                    android:id="@+id/writeMsgRoot"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@color/blackDark"
+                    android:layout_alignParentBottom="true"
+                    android:padding="10dp">
+
+                    <FrameLayout
+                        android:background="@drawable/bg_rounded_corners"
+                        android:backgroundTint="@color/blackLight"
+                        android:layout_weight="10"
+                        android:padding="8dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <EditText
+                            android:id="@+id/writeMsgEdittxt"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:autofillHints=""
+                            android:background="@null"
+                            android:ems="10"
+                            android:hint="@string/write_msg_txt"
+                            android:inputType="textMultiLine"
+                            android:textColorHint="@color/pink"
+                            tools:ignore="RtlSymmetry,TouchTargetSizeCheck" />
+
+                    </FrameLayout>
+
+                    <ImageButton
+                        android:id="@+id/sendBtn"
+                        android:layout_width="35dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_weight="1"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@null"
+                        android:padding="3dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_send_filled"
+                        app:tint="@color/pink"
+                        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+        <carbon.widget.RelativeLayout
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@color/blackDark"
+            app:carbon_elevation="50dp"
+            app:carbon_elevationShadowColor="@color/white"
+            app:carbon_cornerRadiusBottomEnd="30dp"
+            app:carbon_cornerRadiusBottomStart="30dp">
+
+            <ImageView
+                android:id="@+id/connection_indicator"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_below="@id/appNameRoot"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="14dp"
+                android:contentDescription="@null"
+                android:src="@drawable/status_offline_ind" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/chatMate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/appNameRoot"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_toEndOf="@id/connection_indicator"
+                android:fontFamily="@font/proximanova_regular"
+                android:text="@string/name_of_chat_mate"
+                android:textSize="14sp" />
+
+        </carbon.widget.RelativeLayout>
+
+    </RelativeLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

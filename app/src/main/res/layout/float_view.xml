@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<carbon.widget.RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="80dp"
+    android:layout_height="50dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <carbon.widget.FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/pink"
+        android:alpha="0.5"
+        app:carbon_cornerRadiusTopStart="20dp"
+        app:carbon_cornerRadiusBottomStart="20dp"
+    />
+
+    <carbon.widget.ImageView
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="2dp"
+        android:translationX="4dp"
+        android:src="@drawable/babyy"
+        app:carbon_cornerRadius="18dp"
+        tools:ignore="ContentDescription" />
+
+    <carbon.widget.TextView
+        android:id="@+id/msg_badge"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@color/carbon_red_a700"
+        android:gravity="center"
+        android:text="0"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:visibility="gone"
+        app:carbon_cornerRadius="10dp"
+        tools:ignore="HardcodedText" />
+
+</carbon.widget.RelativeLayout>

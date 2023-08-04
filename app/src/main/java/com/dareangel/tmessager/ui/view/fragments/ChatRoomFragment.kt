@@ -15,6 +15,7 @@ import androidx.transition.TransitionInflater
 import com.dareangel.tmessager.R
 import com.dareangel.tmessager.databinding.FragmentChatroomBinding
 import com.dareangel.tmessager.db.Database
+import com.dareangel.tmessager.interfaces.DatabaseListener
 import com.dareangel.tmessager.interfaces.ILazyLoaderCallback
 import com.dareangel.tmessager.interfaces.IPullToLoadMoreListener
 import com.dareangel.tmessager.interfaces.MessageListener
@@ -34,7 +35,7 @@ import com.dareangel.tmessager.ui.view.messagesdisplayer.MessagesRecyclerviewLay
  */
 class ChatRoomFragment(
     private val mContext : MainActivity,
-) : Fragment(R.layout.fragment_chatroom), MessageListener, ILazyLoaderCallback {
+) : Fragment(R.layout.fragment_chatroom), MessageListener, DatabaseListener, ILazyLoaderCallback {
 
     private var bindView : FragmentChatroomBinding? = null
 
@@ -66,6 +67,9 @@ class ChatRoomFragment(
         super.onCreate(savedInstanceState)
         val inflater = TransitionInflater.from(mContext)
         enterTransition = inflater.inflateTransition(R.transition.fade_out)
+
+        // attach the listener to the database
+        Database.databaseListener = this
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -145,6 +149,11 @@ class ChatRoomFragment(
         }
     }
 
+    /**
+     * Called to send data to the messaging service
+     * @param code the code of the message
+     * @param data the data to send
+     */
     private fun sendDataToMessagingService(code: Int, data: String = "null") {
         if (!bound) return
         val message = Message.obtain(null, code)
@@ -231,6 +240,9 @@ class ChatRoomFragment(
         bindView!!.msgListRecyclerView.adapter?.notifyItemChanged(position)
     }
 
+    /**
+     * Called when the message is seen and updates the UI
+     */
     override fun onMessageSeen(msg: MessageData) {
         if (mMessagesAdapter!!.data.size == 0) return
 
@@ -254,9 +266,28 @@ class ChatRoomFragment(
      * Called when a new message is received and updates the UI
      */
     override fun onNewMessage(message: MessageData) {
+        val position = mMessagesAdapter!!.getPositionOfMessageWithId(message.id)
+        if (position != -1) return
+
         mMessagesAdapter!!.data.add(message)
         bindView!!.msgListRecyclerView.adapter?.notifyItemInserted(mMessagesAdapter!!.data.size)
         bindView!!.msgListRecyclerView.smoothScrollToPosition(mMessagesAdapter!!.data.size)
+    }
+
+    /**
+     * Called when other user logged in
+     */
+    override fun onOtherUserLoggedIn() {
+        // change the connection indicator to green
+        bindView!!.connectionIndicator.setImageResource(R.drawable.status_online_ind)
+    }
+
+    /**
+     * Called when other user logged out
+     */
+    override fun onOtherUserLoggedOut() {
+        // change the connection indicator to red
+        bindView!!.connectionIndicator.setImageResource(R.drawable.status_offline_ind)
     }
 
     override fun onStart() {

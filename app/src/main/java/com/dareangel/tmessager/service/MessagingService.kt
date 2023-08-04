@@ -1,10 +1,15 @@
 package com.dareangel.tmessager.service
 
+import android.annotation.SuppressLint
 import android.app.Service
+import android.content.Context
 import android.content.Intent
+import android.graphics.PixelFormat
 import android.os.*
+import android.view.*
 import androidx.core.app.NotificationCompat
-import com.dareangel.tmessager.db.Database
+import carbon.widget.TextView
+import com.dareangel.tmessager.R
 import com.dareangel.tmessager.interfaces.MessageListener
 import com.dareangel.tmessager.model.MessageData
 import com.dareangel.tmessager.`object`.ForegroundNotification.CHANNEL_ID
@@ -12,11 +17,16 @@ import com.dareangel.tmessager.`object`.ForegroundNotification.NOTIFICATION_ID
 import com.dareangel.tmessager.`object`.MessengerCodes
 import com.dareangel.tmessager.presenter.MessagePresenter
 import com.dareangel.tmessager.service.comm.IncomingDataFromUIHandler
+import com.dareangel.tmessager.ui.animator.Animator
+import com.dareangel.tmessager.ui.view.MainActivity
+import com.dareangel.tmessager.ui.view.fragments.FloatingView
+import com.dareangel.tmessager.util.Utility
 import com.google.gson.Gson
 
 class MessagingService : Service(), MessageListener {
 
     private lateinit var messagePresenter : MessagePresenter
+    private lateinit var floatingView : FloatingView
 
     private val messenger = Messenger(IncomingDataFromUIHandler(this))
     private var uiMessenger: Messenger? = null
@@ -27,7 +37,8 @@ class MessagingService : Service(), MessageListener {
 
     override fun onCreate() {
         super.onCreate()
-        messagePresenter = MessagePresenter(this)
+        messagePresenter = MessagePresenter(this, this)
+        floatingView = FloatingView(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -49,6 +60,9 @@ class MessagingService : Service(), MessageListener {
         }
         // set the messenger to the message presenter
         messagePresenter.setUIMessenger(uiMessenger!!)
+
+        // hide the floating view
+        floatingView.hide()
 
         return START_NOT_STICKY
     }
@@ -81,9 +95,16 @@ class MessagingService : Service(), MessageListener {
         messagePresenter.loadMoreMessages()
     }
 
-    fun removeMessengerClient() {
+    /**
+     * Removes the messenger of the UI
+     */
+    fun removeMessengerUI() {
         uiMessenger = null
         messagePresenter.setUIMessenger(null)
+
+        // if the messenger is null, it means that the user closed the app
+        // let's show the floating view
+        floatingView.show()
     }
 
     override fun onFetchMessages(messages: ArrayList<MessageData>) {
@@ -113,6 +134,11 @@ class MessagingService : Service(), MessageListener {
     }
 
     override fun onNewMessage(message: MessageData) {
+        floatingView.onNewMessage()
+        if (uiMessenger == null) {
+            return
+        }
+
         sendDataToUI(MessengerCodes.NEW_MSG, message)
     }
 

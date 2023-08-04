@@ -2,6 +2,7 @@ package com.dareangel.tmessager.db
 
 import android.content.Context
 import com.dareangel.tmessager.R
+import com.dareangel.tmessager.interfaces.DatabaseListener
 import com.dareangel.tmessager.model.Message
 import com.dareangel.tmessager.model.MessageData
 import com.google.firebase.database.DatabaseReference
@@ -15,12 +16,11 @@ object Database {
     private var dbRef : DatabaseReference? = null
     private var userActiveRef : DatabaseReference? = null
 
-    private var mTotalOnline = 0
-
-    var totalOnline : Int
-        get() = mTotalOnline
+    private var mDatabaseListener: DatabaseListener? = null
+    var databaseListener: DatabaseListener?
+        get() = mDatabaseListener
         set(value) {
-            mTotalOnline = value
+            mDatabaseListener = value
         }
 
     fun initialize(context: Context) {
@@ -34,26 +34,29 @@ object Database {
         db?.setPersistenceEnabled(true)
         // sync
         dbRef = db?.reference
+        dbRef?.keepSynced(true)
         userActiveRef = dbRef?.child("Active")
 
         listeners()
     }
 
     private fun listeners() {
-        userActiveRef!!.addChildEventListener(object : com.google.firebase.database.ChildEventListener {
+        userActiveRef!!.addChildEventListener(object : ChildEventListenerAdapter() {
             override fun onChildAdded(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {
                 val value = snapshot.getValue(String::class.java)!!
+
+                if (value != Message.USER) {
+                    databaseListener?.onOtherUserLoggedIn()
+                }
             }
 
             override fun onChildRemoved(snapshot: com.google.firebase.database.DataSnapshot) {
                 val value = snapshot.getValue(String::class.java)!!
+
+                if (value != Message.USER) {
+                    databaseListener?.onOtherUserLoggedOut()
+                }
             }
-
-            override fun onChildChanged(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {}
-
-            override fun onChildMoved(snapshot: com.google.firebase.database.DataSnapshot, previousChildName: String?) {}
-
-            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
         })
     }
 
@@ -73,9 +76,5 @@ object Database {
 
     fun getDatabaseRef() : DatabaseReference? {
         return dbRef
-    }
-
-    fun updateMessage(message: MessageData) {
-        dbRef?.child("Messages")?.child(message.id)?.setValue(message)
     }
 }
